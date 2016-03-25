@@ -75,7 +75,7 @@ or see the individual documentation for the individual scripts
 
 For further information or assistance with this repository please contact one of:
 
-* [Nick Schurch](nschurch@dundee.ac.uk)
+* [Nick Schurch]<nschurch@dundee.ac.uk>
 * [Marek Gierlinski](mgierlinski@dundee.ac.uk)
 * [Pieta Schofield](pschofield@dundee.ac.uk)
 * [Chris Cole](ccole@dundee.ac.uk)
