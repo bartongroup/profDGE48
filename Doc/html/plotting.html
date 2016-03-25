@@ -1,0 +1,493 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Plotting routines &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="plotting-routines">
+<span id="plotting"></span><h1>Plotting routines<a class="headerlink" href="#plotting-routines" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="cluster-replicates-pv-r">
+<span id="cluster-replicates-pv-rdoc"></span><h1>cluster_replicates_pv.R<a class="headerlink" href="#cluster-replicates-pv-r" title="Permalink to this headline">¶</a></h1>
+<p>This short Rscript uses the R package <cite>pvclust &lt;http://www.sigmath.es.osaka-u.ac.jp/shimo-lab/prog/pvclust/&gt;</cite>
+to hierarchically cluster the experiment replicates using correlation distance
+and complete linkage. The package boostraps the clustering process to assign
+significances for the structure of the observed clustering. This script uses
+1000 bootstraps and marks cluster that are not observed in at least 95% of the
+boostraps.</p>
+</div>
+<div class="section" id="cluster-tools-pv-r">
+<span id="cluster-tools-pv-rdoc"></span><h1>cluster_tools_pv.R<a class="headerlink" href="#cluster-tools-pv-r" title="Permalink to this headline">¶</a></h1>
+<p>This short Rscript uses the R package <cite>pvclust &lt;http://www.sigmath.es.osaka-u.ac.jp/shimo-lab/prog/pvclust/&gt;</cite>
+to hierarchically cluster the DGE tools tested here using correlation distance
+and complete linkage. The package boostraps the clustering process to assign
+significances for the structure of the observed clustering. This script uses
+1000 bootstraps and marks cluster that are not observed in at least 95% of the
+boostraps.</p>
+</div>
+<div class="section" id="compare-null-pl">
+<span id="compare-null-perldoc"></span><h1>compare_null.pl<a class="headerlink" href="#compare-null-pl" title="Permalink to this headline">¶</a></h1>
+<p>Compare results from null test - FPR bootstraps for the same condition.
+Requires a test description file with all details of the bootstraps
+(<em>de_tests_samecond.txt</em> is default).</p>
+<blockquote>
+<div>compare_null.ps -psfile=null.ps</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-testinfofile</cite> - A file with DE tools metadata (for the &#8216;same condition&#8217; bootstraps). See <a class="reference internal" href="#plot-fcp-perldoc"><em>plot_fcp.pl</em></a> for details. Default is <em>de_tests_samecond.txt</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-dir</cite> - Directory where the results from <a class="reference internal" href="DE_tool_comparison.html#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a> are stored. The default value is <em>powerstats_same_db</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-tests</cite> - A comma-delimited list of tests/tools to be included in the plot. The default value is &#8216;<em>lt,bayseq,cuffdiff,degseq,deseq1,deseq2,ebseq,edger,limma,noiseq,samseq,poissonseq</em>&#8216;.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-graph</cite> - Type of graph to plot. The default value is &#8216;all&#8217;. Do not change!</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="compare-powerstats-db-pl">
+<span id="compare-powerstats-db-perldoc"></span><h1>compare_powerstats_db.pl<a class="headerlink" href="#compare-powerstats-db-pl" title="Permalink to this headline">¶</a></h1>
+<p>Script to create figure 2.</p>
+<blockquote>
+<div>compare_powerstats_db.pl</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-testinfofile</cite> - A file with DE tools metadata. See <a class="reference internal" href="#plot-fcp-perldoc"><em>plot_fcp.pl</em></a> for details. Default is <em>de_tests.txt</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-dir</cite> - Directory where the results from <a class="reference internal" href="DE_tool_comparison.html#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a> are stored. The default value is <em>powerstats_db_ref</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-truetest</cite> - A test to be used as a &#8216;gold standard&#8217;. The default value (as used in the Paper) is &#8216;<em>self</em>&#8216;, that is the full clean replicate test for the same tool.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-tests</cite> - A comma-delimited list of tests/tools to be included in the plot. The default value is &#8216;<em>lt,bayseq,cuffdiff,degseq,deseq1,deseq2,ebseq,edger,limma,noiseq,samseq,poissonseq</em>&#8216;.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-minnerp</cite> - Minumum number of replicates to include in the plots. Default is 3.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-nrep</cite> - Number of replicates to create the plot.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-graph</cite> - Type of graph to plot. The default value is &#8216;<em>rates</em>&#8216;. Do not change!</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plot-distest-pl">
+<span id="plot-distest-perldoc"></span><h1>plot_distest.pl<a class="headerlink" href="#plot-distest-pl" title="Permalink to this headline">¶</a></h1>
+<p>Plot a figure with results from log-normal and negative binomial tests.
+Need to run <a class="reference internal" href="disttests.html#distribution-test-perldoc"><em>distribution_test.pl</em></a> and
+<a class="reference internal" href="disttests.html#grid-launcher-nbtest-perldoc"><em>grid_launcher_nb_test.pl</em></a> first to create
+test results. These test results should be in files:</p>
+<blockquote>
+<div><ul class="simple">
+<li>WT_lnorm_lev_clean_test.dat</li>
+<li>Snf2_lnorm_lev_clean_test.dat</li>
+<li>WT_lnorm_lev_test.dat</li>
+<li>Snf2_lnorm_lev_test.dat</li>
+<li>WT_nb_deseq_lev_test.dat</li>
+<li>Snf2_nb_deseq_lev_test.dat</li>
+<li>WT_nb_lev_test.dat</li>
+<li>Snf2_nb_lev_test.dat</li>
+</ul>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plot_distest</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">norm</span><span class="o">=</span><span class="n">lev</span> <span class="o">-</span><span class="n">psfile</span><span class="o">=</span><span class="n">dist_tests</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-norm</cite> - Normalization used in distribution test scripts (see DESCRIPTION). This is used to identify the test result files. The default value is: <em>lev</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-psfile</cite> - Output postscript file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plot-fcp-pl">
+<span id="plot-fcp-perldoc"></span><h1>plot_fcp.pl<a class="headerlink" href="#plot-fcp-pl" title="Permalink to this headline">¶</a></h1>
+<p>Plot p-value versus fold-change. The input file for this script is a result
+from a DE tool, which should be a tab-delimited file containing a column
+with p-values and a column with log2 fold-change. A column with gene names
+allows for gene selection and highlighting:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plot_fcp</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="nb">file</span><span class="o">=</span><span class="n">de_edger</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">psfile</span><span class="o">=</span><span class="n">de_edger</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-file</cite> - A file with DE test results. As a minimum, it should contain a column with p-values and a column with log2 fold change. By default, the first column is a gene name, the second column is log2 fold change and the third column is the p-value. These can be changed by column options described below.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-psfile</cite> - Name of the output postscript file.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-colg</cite> - Column with gene name (identifier). The default value is 1.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-colfc</cite> - Column with log2 fold change. The default value is 2.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-colp</cite> - Column with p-value. The default value is 3.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-fcsign=[-1|1]</cite> - Sign of log2 fold change. If the tool reports fold change the wrong way around, use -1 to reverse it.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-mcor=[none|bh|hb]</cite> - Multiple test correction to apply in the plot.</p>
+<ul class="simple">
+<li><em>none</em> - the default value under the assumption that the tool/test output is already corrected</li>
+<li><em>bh</em> - Benjamini-Hochberg</li>
+<li><em>hb</em> - Holm-Bonferroni</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-all</cite> - If used, fold-change/p-value plots will be created for all tools in the file specified by <em>-testinfofile</em>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first last"><cite>-testinfofile</cite> - A file with DE tools metadata. This is a text file containing records for each test/tool. Each record has a following format</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><pre>TEST deseq
+name = DEseq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps/DEseq/deseq_%dreps_defaultnorm.tsv
+sp_repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps_with_spike_ins/deseq/deseq_%dreps_package_default.tsv
+fullfile = wrap_deseq.txt
+adjustment = bh
+FCsig = -1</pre>
+</div>
+<p><em>name</em> is the name of the test to be displayed. <em>repflie</em> is a format for
+bootstrap results (an FCP file) for all replicates (%d stands for replicate
+number). <em>sp_repfile</em> is for spike-in bootstrap results. <em>fullfile</em> is the
+result for full clean replicate set. <em>adjustment</em> is the multiple test
+adjustment used to obtain p-values. <em>FCsig</em> is an optional sign correction
+for fold-change. FCP files are tab-delimited with (at least) three columns:
+gene id, log2 fold change and p-value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-sellist</cite> - An optional comma-delimited list of files, containing gene names to highlight (in the first column). Genes from each file will be highlighted in a different colour.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - An optional file with gene names (first column) to be displayed. Other genes will be ignored.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-fclines</cite> - Comma-delimited list of fold-change values (not logarithms!) to be shown as vertical lines.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-title</cite> - Title of the plot.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-alpha</cite> - Significance level. The default value is 0.05. A dashed red line at the significance level will be shown in the plot and the number of the significantly DE genes, n_s, reported.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-lmin</cite> - Minimum value (as a logarithm) for the vertical axis. If not specified, the script will calculate it from the data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-fmax</cite> - Minimum/maximum value (as a base-2 logarithm) for the horizontal axis. The default value is 3.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-label</cite> - Optional label inside the plot (left-top corner).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plot-gene-examples-pl">
+<span id="plot-gene-examples-perldoc"></span><h1>plot_gene_examples.pl<a class="headerlink" href="#plot-gene-examples-pl" title="Permalink to this headline">¶</a></h1>
+<p>Plots a figure with expression distribution for several genes. Best-fitting
+log-normal and negative binomial distributions are shown:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plot_gene_examples</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">clean</span> <span class="o">-</span><span class="n">psfile</span><span class="o">=</span><span class="n">figure</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-clean</cite> - Use clean data replicates, as specified in <em>defs.dat</em> file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-psfile</cite> - Name of the postsript file to redirect output to.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plot-gene-pileup-pl">
+<span id="plot-gene-pileup-perldoc"></span><h1>plot_gene_pileup.pl<a class="headerlink" href="#plot-gene-pileup-pl" title="Permalink to this headline">¶</a></h1>
+<p>Plots read pileup for a given gene/locus. It shows the mean pileup across
+replicates, plus/minus one standard deviation. Additionally, a replicate can
+be highlighted on top of the mean.</p>
+<p>Pileup files need to be created using <a class="reference internal" href="mapping.html#build-pileup-perldoc"><em>build_pileup.pl</em></a>.
+You also need to run <a class="reference internal" href="norm.html#norms-perldoc"><em>norms.pl</em></a> first in order to created
+normalization factor files:</p>
+<div class="highlight-python"><pre>plot_gene_pileup.pl -gene=yhr215w -clean
+plot_gene_pileup.pl -locus=VIII:551800-553500 -clean</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-gene</cite> - Gene to plot. If not defined, <em>-locus</em> must be supplied instead.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-locus</cite> - Locus to plot. Format is <em>chromosome:pos1-pos2</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-clean</cite> - If specified, only clean replicates will be used, as defined in <em>defs.dat</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-norm</cite> - Normalization to be used. Needs <em>&lt;char&gt;normfac.txt</em> files created with script <a class="reference internal" href="norm.html#norms-perldoc"><em>norms.pl</em></a>. Default value is <em>deseq</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-showrep</cite> - Which replicate to show on top of mean and standard deviation of other replicates. The format is [r1],[r2] for condition 1 and 2. For example 21,6 will highlight replicate 21 in the first condition and 6 in the second one. You can also specify one replicate: 21, or ,6.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-psfile</cite> - Output postscript file.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plot-ms-pl">
+<span id="plot-ms-perldoc"></span><h1>plot_ms.pl<a class="headerlink" href="#plot-ms-pl" title="Permalink to this headline">¶</a></h1>
+<p>Plot mean, standard deviation and a few over things. This script can make
+lots of plots that we used to investigate data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plot_ms</span><span class="o">.</span><span class="n">pl</span>
+<span class="n">plot_ms</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">clean</span> <span class="o">-</span><span class="n">withloess</span> <span class="o">-</span><span class="n">psfile</span><span class="o">=</span><span class="n">figure</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-wthloess</cite> - If specified, loess fit will be added to the plot.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-norm</cite> - Expression data normalization. Input expression files contain raw counts. These are normalized on the fly, using one of the following methods:</p>
+<ul class="simple">
+<li><em>none</em> - no normalization</li>
+<li><em>lev</em> - levelling (equal read count) normalization (needs data preparation)</li>
+<li><em>deseq</em> - DESeq normalization (default)</li>
+<li><em>tmm</em> - trimmed mean of M values normalization</li>
+<li><em>fpkm</em> - approximate FPKM normalization (not identical to cuffdiff!)</li>
+<li><em>totcount</em> - total count</li>
+<li><em>totcountm</em> - total count with normalization factors scaled to the mean of 1</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-clean</cite> - Use clean data replicates, as specified in <em>defs.dat</em> file.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first last"><cite>-psfile</cite> - Name of the postsript file to redirect output to.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plot-powerstats-db-pl">
+<span id="plot-powerstats-db-perldoc"></span><h1>plot_powerstats_db.pl<a class="headerlink" href="#plot-powerstats-db-pl" title="Permalink to this headline">¶</a></h1>
+<p>Plot various results:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plot_powerstats_db</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">test</span><span class="o">=</span><span class="n">edger</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-graph=[over|sim|cn|ns|sp]</cite> - Which graph to plot. Only &#8216;over&#8217; and &#8216;sp&#8217; are working.</p>
+<ul class="simple">
+<li>over - overview plot, used in the paper (default)</li>
+<li>sp - significance propotion for three replicate numbers</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-testinfofile</cite> - A file with DE tools metadata. See <a class="reference internal" href="#plot-fcp-perldoc"><em>plot_fcp.pl</em></a> for details. Default name is <em>de_tests.txt</em>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-powerdir</cite> - Directory where the results from <a class="reference internal" href="DE_tool_comparison.html#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a> are stored. The default value is <em>powerstats_db_ref</em>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-test</cite> - Name of the test/tool to plot results for. As defined in the metadata file.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-minnerp</cite> - Minumum number of replicates to include in the plots. Default is 2.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-maxfc</cite> - Maximum value of log2-fold-change axis in the plots. The default value is 2.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-cs</cite> - Larger character size in plots. The default value is 0.45.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-cs2</cite> - Smaller character size in plots. The default value is 0.3.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-psfile</cite> - Name of the output postscript file.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>&#8211;help</cite> - Brief help.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first last"><cite>&#8211;man</cite> - Full manpage of program.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plot-spikein-groups-pl">
+<span id="plot-spikein-groups-perldoc"></span><h1>plot_spikein_groups.pl<a class="headerlink" href="#plot-spikein-groups-pl" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plot_fcp</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="nb">file</span><span class="o">=</span><span class="n">de_test_results</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-file</cite> - A file with DE test results. As a minimum, it should contain a column with p-values and a column with log2 fold change. By default, the first column is a gene name, the second column is log2 fold change and the third column is the p-value. These can be changed by column options described below.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-colg</cite> - Column with gene name (identifier). The default value is 1.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-colfc&gt;=I&lt;number</cite> - Column with log2 fold change. The default value is 2.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-colp&gt;=I&lt;number</cite> - Column with p-value. The default value is 3.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-fcsign=[-1|1]</cite> - Sign of log2 fold change. If the tool reports fold change the worng way around, use -1 to reverse it.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-all</cite> - If used, fold-chage/p-value plots will be created for all tools in the file specified by <em>-testinfofile</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-testinfofile</cite> - A file with DE tools metadata. This is a text file contating records for each test/tool. Each record has a following format.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><pre>TEST deseq
+name = DEseq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps/DEseq/deseq_%dreps_defaultnorm.tsv
+sp_repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps_with_spike_ins/deseq/deseq_%dreps_package_default.tsv
+fullfile = wrap_deseq.txt
+adjustment = bh
+FCsig = -1</pre>
+</div>
+<p><em>name</em> is the name of the test to be displayed. <em>repflie</em> is a format for
+bootstrap results (an FCP file) for all replicates (%d stands for replicate
+number). <em>sp_repfile</em> is for spike-in bootstrap results. <em>fullfile</em> is the
+result for full clean replicate set. <em>adjustment</em> is the multiple test
+adjustment used to obtain p-values. <em>FCsig</em> is an optional sign correction
+for fold-change. FCP files are tab-delimited with (at least) three columns:
+gene id, log2 fold change and p-value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-sellist</cite> - An optional comma-delimited list of files, containing gene names to highlight (in the first column). Genes from each file will be highlighed in a different colour.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - An optional file with gene names (first column) to be displayed. Other genes will be ignored.</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Plotting routines</a></li>
+<li><a class="reference internal" href="#cluster-replicates-pv-r">cluster_replicates_pv.R</a></li>
+<li><a class="reference internal" href="#cluster-tools-pv-r">cluster_tools_pv.R</a></li>
+<li><a class="reference internal" href="#compare-null-pl">compare_null.pl</a></li>
+<li><a class="reference internal" href="#compare-powerstats-db-pl">compare_powerstats_db.pl</a></li>
+<li><a class="reference internal" href="#plot-distest-pl">plot_distest.pl</a></li>
+<li><a class="reference internal" href="#plot-fcp-pl">plot_fcp.pl</a></li>
+<li><a class="reference internal" href="#plot-gene-examples-pl">plot_gene_examples.pl</a></li>
+<li><a class="reference internal" href="#plot-gene-pileup-pl">plot_gene_pileup.pl</a></li>
+<li><a class="reference internal" href="#plot-ms-pl">plot_ms.pl</a></li>
+<li><a class="reference internal" href="#plot-powerstats-db-pl">plot_powerstats_db.pl</a></li>
+<li><a class="reference internal" href="#plot-spikein-groups-pl">plot_spikein_groups.pl</a><ul>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/plotting.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

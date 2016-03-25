@@ -1,0 +1,48 @@
+.. byLane_profiles_autodocs:
+
+***************
+byLane_profiles
+***************
+
+.. automodule:: byLane_profiles
+
+Functions
+=========
+
+Argument parsing
+----------------
+
+.. autofunction:: parse_required_options
+.. autofunction:: parse_allowed_values
+.. autofunction:: parse_option_type
+
+Program, script and environment logging
+---------------------------------------
+
+.. autofunction:: write_log_header
+
+Experiment structure parsing
+----------------------------
+
+.. autofunction:: getConditions
+
+
+Data Manipulation Functions
+---------------------------
+
+.. autofunction:: getLaneTotalCountNorm
+.. autofunction:: convertRPKM
+.. autofunction:: normByLanes
+
+Plotting Functions
+------------------
+
+.. autofunction:: get_colors
+.. autofunction:: plot_muvsig
+.. autofunction:: plotLaneProfiles
+
+General housekeeping
+--------------------
+
+.. autofunction:: timeAndDateStr
+.. autofunction:: timeStr

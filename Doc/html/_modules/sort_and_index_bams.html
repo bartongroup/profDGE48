@@ -1,0 +1,521 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sort_and_index_bams &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sort_and_index_bams</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">**********************</span>
+<span class="sd">sort_and_index_bams.py</span>
+<span class="sd">**********************</span>
+
+<span class="sd">Given a directory, sorts and then indexes every bam file in the directory</span>
+<span class="sd">using a `DRMAA &lt;http://www.drmaa.org/&gt;`_ enabled cluster.</span>
+<span class="sd"> </span>
+<span class="sd">.. moduleauthor:: Nick Schurch &lt;nschurch@dundee.ac.uk&gt;</span>
+
+<span class="sd">:version: 1.3</span>
+
+<span class="sd">======================</span>
+<span class="sd">Command-line Arguments</span>
+<span class="sd">======================</span>
+
+<span class="sd">**usage\:** </span>
+<span class="sd">    sort_and_index_bams.pl </span>
+<span class="sd">    :option:`-d|--datapath` *&lt;path&gt;*</span>
+<span class="sd">    :option:`-l|--logfile` *&lt;file&gt;* </span>
+<span class="sd">    [:option:`--samtoolspath` *&lt;path&gt;*]</span>
+<span class="sd">    [:option:`--clustq` *&lt;str&gt;*] </span>
+<span class="sd">    [:option:`--tmpdir` *&lt;path&gt;*]</span>
+<span class="sd">    [:option:`-v|--verbose`] </span>
+<span class="sd">    [:option:`-h|--help`]</span>
+
+<span class="sd">-------------------</span>
+<span class="sd">Required Parameters</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">.. option:: -d &lt;path&gt;, --datapath &lt;path&gt;</span>
+
+<span class="sd">    Path to the data directory with the bam files to be processed</span>
+
+<span class="sd">.. option:: -l &lt;filename&gt;, --logfile &lt;filename&gt;</span>
+
+<span class="sd">    The name (inc. path) of the log file to write to.</span>
+
+<span class="sd">Other options</span>
+<span class="sd">-------------</span>
+
+<span class="sd">.. option:: --samtoolspath &lt;path&gt; (Default: /local/bin/samtools)</span>
+
+<span class="sd">  Specify the path to the samtools executable. </span>
+
+<span class="sd">.. option:: --clustq &lt;str&gt; (Default: 64bit-pri.q)</span>
+
+<span class="sd">  Set the q to use to run cluster jobs.</span>
+
+<span class="sd">.. option:: --tmpdir &lt;path&gt; (Default: ./.temp)</span>
+
+<span class="sd">  The full path of the temporary directory you with to use for processing</span>
+<span class="sd">  intermediate files.</span>
+
+<span class="sd">.. option:: -v, --verbose</span>
+
+<span class="sd">    Turn on verbose logging.</span>
+
+<span class="sd">.. option:: -h, --help</span>
+
+<span class="sd">  Print a basic description of the tool and its options to STDOUT.</span>
+
+<span class="sd">======</span>
+<span class="sd">Output</span>
+<span class="sd">======</span>
+
+<span class="sd">Sorted bam file (affixed with &#39;sorted&#39;) and a bam file index (appended with </span>
+<span class="sd">the extension .bai) for every bam file in the directory.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">warnings</span><span class="o">,</span> <span class="nn">drmaa</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span><span class="p">,</span> <span class="n">OptionGroup</span>
+
+<span class="kn">from</span> <span class="nn">Modules.housekeeping</span> <span class="kn">import</span> <span class="n">custom_formatwarning</span>
+<span class="kn">from</span> <span class="nn">Modules.housekeeping</span> <span class="kn">import</span> <span class="n">parse_required_options</span><span class="p">,</span> <span class="n">parse_allowed_values</span>
+<span class="kn">from</span> <span class="nn">Modules.housekeeping</span> <span class="kn">import</span> <span class="n">parse_option_type</span>
+<span class="kn">from</span> <span class="nn">Modules.housekeeping</span> <span class="kn">import</span> <span class="n">timeStr</span>
+<span class="kn">from</span> <span class="nn">Modules.housekeeping</span> <span class="kn">import</span> <span class="n">write_log_header</span>
+
+<span class="n">imported_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;os&quot;</span><span class="p">,</span> <span class="s">&quot;sys&quot;</span><span class="p">,</span> <span class="s">&quot;re&quot;</span><span class="p">,</span> <span class="s">&quot;warnings&quot;</span><span class="p">,</span> <span class="s">&quot;optparse&quot;</span><span class="p">,</span> <span class="s">&quot;drmaa&quot;</span><span class="p">]</span>
+
+<span class="n">version_string</span><span class="o">=</span><span class="s">&quot;1.3&quot;</span>
+
+<span class="c"># force sequential output to the screen, rather than buffered output.</span>
+<span class="k">def</span> <span class="nf">printf</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">args</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fdopen</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c"># override warning messages with a custom format</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">custom_formatwarning</span>
+
+
+<div class="viewcode-block" id="sortOrIndexBams"><a class="viewcode-back" href="../mapping.html#sort_and_index_bams.sortOrIndexBams">[docs]</a><span class="k">def</span> <span class="nf">sortOrIndexBams</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;sort&quot;</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39; Sort or index a set of bam files.</span>
+<span class="sd">    </span>
+<span class="sd">    This function wraps :func:`sortOrIndexBam`, calling this function </span>
+<span class="sd">    for each bam file in a directory.</span>
+<span class="sd">    </span>
+<span class="sd">    :param list files: a list of bam files to sort, sorted bam files to index.</span>
+<span class="sd">    </span>
+<span class="sd">    :param options: an :py:class:`optparse.Values` instance.</span>
+<span class="sd">    </span>
+<span class="sd">    :param str mode: either &#39;sort&#39; or &#39;index&#39; (default: *sort*).</span>
+<span class="sd">    </span>
+<span class="sd">    :param str outfile: if **mode** is *sort*, specify an output filename.</span>
+<span class="sd">    </span>
+<span class="sd">    The **options** must include:</span>
+<span class="sd">          </span>
+<span class="sd">        * *log* - specify the logfile to write to.</span>
+<span class="sd">        </span>
+<span class="sd">        * *samtoolspath* - the location of samtools to use.</span>
+<span class="sd">        </span>
+<span class="sd">        * *tmpdir* - the path of the temporary directory to use for processing.</span>
+<span class="sd">        </span>
+<span class="sd">        * *clustq* - the cluster queue to use (can be *None*).</span>
+<span class="sd">        </span>
+<span class="sd">        * *verbose* - toggle on/off verbose logging</span>
+<span class="sd">         </span>
+<span class="sd">    The function returns a list of cluster output filenames.</span>
+<span class="sd">    &#39;&#39;&#39;</span> 
+
+    <span class="c"># sanity checks</span>
+    <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;sort&quot;</span><span class="p">,</span> <span class="s">&quot;index&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Mode not recognized. Please choose either &#39;sort&#39; &quot;</span> \
+                         <span class="s">&quot;or &#39;index&#39;.&quot;</span><span class="p">)</span>
+    
+    <span class="c"># get queue information for logging</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="s">&quot;default&quot;</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clustq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">queue</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">clustq</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;sort&quot;</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Cluster enabled: Running samtools sort &quot;</span> \
+                  <span class="s">&quot;on a cluster node in the </span><span class="si">%s</span><span class="s"> queue for each bam file.</span><span class="se">\n</span><span class="s">&quot;</span> \
+                  <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span><span class="n">queue</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;index&quot;</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Cluster enabled: Running samtools index &quot;</span> \
+              <span class="s">&quot;on a cluster node in the </span><span class="si">%s</span><span class="s"> queue for each bam file.</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span><span class="n">queue</span><span class="p">))</span>
+        
+    <span class="c"># use drmaa to spread multiple jobs across the cluster.</span>
+    <span class="c"># open a drmaa</span>
+    <span class="n">c_session</span> <span class="o">=</span> <span class="n">drmaa</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+    <span class="n">c_session</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+        
+    <span class="c"># check to see if the options.tmpdir path exists: if it doesn&#39;t, create it.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span><span class="c">#</span>
+            <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Creating temp directory: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+    
+    <span class="c"># loop throught he files calling a new cluster job for each</span>
+    <span class="n">joblist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">finished_files</span><span class="o">=</span><span class="p">{}</span>
+    <span class="k">for</span> <span class="n">bam_file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;sort&quot;</span><span class="p">:</span>
+            <span class="n">outfile</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.sorted&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;\.bam&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">bam_file</span><span class="p">)</span>
+        
+        <span class="n">jobid</span><span class="p">,</span> <span class="n">finished_file</span> <span class="o">=</span> <span class="n">sortOrIndexBam</span><span class="p">(</span><span class="n">c_session</span><span class="p">,</span> <span class="n">bam_file</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span>
+                                              <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">,</span> <span class="n">outfile</span> <span class="o">=</span> <span class="n">outfile</span><span class="p">)</span>
+                
+        <span class="n">joblist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jobid</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;sort&quot;</span><span class="p">:</span>
+            <span class="n">finished_files</span><span class="p">[</span><span class="n">outfile</span><span class="p">]</span> <span class="o">=</span> <span class="n">finished_file</span>
+        <span class="k">elif</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;index&quot;</span><span class="p">:</span>
+            <span class="n">finished_files</span><span class="p">[</span><span class="n">bam_file</span><span class="p">]</span> <span class="o">=</span> <span class="n">finished_file</span>
+    
+    <span class="c"># wait for all these jobs to finish before moving on.</span>
+    <span class="c"># the final &#39;false&#39; here deals with cleaning up the account</span>
+    <span class="c"># info for each job. Since we want to check that each job</span>
+    <span class="c"># exited successfully we set it to false and then call</span>
+    <span class="c"># &#39;wait&#39; on each job to check exit status. </span>
+    <span class="n">c_session</span><span class="o">.</span><span class="n">synchronize</span><span class="p">(</span><span class="n">joblist</span><span class="p">,</span> 
+                          <span class="n">drmaa</span><span class="o">.</span><span class="n">Session</span><span class="o">.</span><span class="n">TIMEOUT_WAIT_FOREVER</span><span class="p">,</span> 
+                          <span class="bp">False</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">curjob</span> <span class="ow">in</span> <span class="n">joblist</span><span class="p">:</span>
+        <span class="c"># collect job accoutning information</span>
+        <span class="n">retval</span> <span class="o">=</span> <span class="n">c_session</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">curjob</span><span class="p">,</span> <span class="n">drmaa</span><span class="o">.</span><span class="n">Session</span><span class="o">.</span><span class="n">TIMEOUT_WAIT_FOREVER</span><span class="p">)</span>
+                    
+        <span class="c"># if job exited pooly, log it!</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">retval</span><span class="o">.</span><span class="n">exitStatus</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;ERR: Job </span><span class="si">%s</span><span class="s"> finished with errors! Check out &#39;</span><span class="si">%s</span><span class="s">/&quot;</span> \
+                      <span class="s">&quot;samtools.o</span><span class="si">%s</span><span class="s">&#39; &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">retval</span><span class="o">.</span><span class="n">jobId</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> 
+                                     <span class="n">retval</span><span class="o">.</span><span class="n">jobId</span><span class="p">))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;ERR: Job </span><span class="si">%s</span><span class="s"> finished with errors! Check out &#39;</span><span class="si">%s</span><span class="s">/&quot;</span> \
+                      <span class="s">&quot;samtools.o</span><span class="si">%s</span><span class="s">&#39; &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">retval</span><span class="o">.</span><span class="n">jobId</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> 
+                                     <span class="n">retval</span><span class="o">.</span><span class="n">jobId</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Job </span><span class="si">%s</span><span class="s"> finished sucessfully</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">retval</span><span class="o">.</span><span class="n">jobId</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>        
+    
+    <span class="n">c_session</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        
+    <span class="k">return</span><span class="p">(</span><span class="n">finished_files</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="sortOrIndexBam"><a class="viewcode-back" href="../mapping.html#sort_and_index_bams.sortOrIndexBam">[docs]</a><span class="k">def</span> <span class="nf">sortOrIndexBam</span><span class="p">(</span><span class="n">c_session</span><span class="p">,</span> <span class="n">bam_file</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;sort&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39; Calls a cluster run of samtools sort/index on a bam file </span>
+<span class="sd">    </span>
+<span class="sd">    :param c_session: a :py:class:`drmaa.Session` object for talking to the </span>
+<span class="sd">                      cluster.</span>
+<span class="sd">    </span>
+<span class="sd">    :param str bam_file: filename of bam to sort, or a sorted bam file to index.</span>
+<span class="sd">    </span>
+<span class="sd">    :param options: an :py:class:`optparse.Values` instance.</span>
+<span class="sd">    </span>
+<span class="sd">    :param str mode: either &#39;sort&#39; or &#39;index&#39; (default: *sort*).</span>
+<span class="sd">    </span>
+<span class="sd">    :param str outfile: if **mode** is *sort*, specify an output filename.</span>
+<span class="sd">    </span>
+<span class="sd">    The **options** must include the keywords:</span>
+<span class="sd">        </span>
+<span class="sd">        * *log* - specify the logfile to write to.</span>
+<span class="sd">        </span>
+<span class="sd">        * *samtoolspath* - the location of samtools to use.</span>
+<span class="sd">        </span>
+<span class="sd">        * *tmpdir* - the path of the temporary directory to use for processing.</span>
+<span class="sd">        </span>
+<span class="sd">        * *clustq* - the cluster queue to use (can be *None*).</span>
+<span class="sd">        </span>
+<span class="sd">        * *verbose* - toggle on/off verbose logging </span>
+
+<span class="sd">    The function returns the filename of the cluster output file.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c"># sanity checks</span>
+    <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;sort&quot;</span><span class="p">,</span> <span class="s">&quot;index&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Mode not recognized. Please choose either &#39;sort&#39; &quot;</span> \
+                         <span class="s">&quot;or &#39;index&#39;.&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;sort&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Please specify an output filename when running in &quot;</span> \
+                         <span class="s">&quot;&#39;sort&#39; mode.&quot;</span><span class="p">)</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;sort&quot;</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Sorting file </span><span class="si">%s</span><span class="s">...</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">bam_file</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;sort&quot;</span><span class="p">,</span> <span class="n">bam_file</span><span class="p">,</span> <span class="n">outfile</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">mode</span><span class="o">==</span><span class="s">&quot;index&quot;</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Indexing file </span><span class="si">%s</span><span class="s">...</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">bam_file</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;index&quot;</span><span class="p">,</span> <span class="n">bam_file</span><span class="p">]</span>
+    
+    <span class="c"># check to see if the options.tmpdir path exists: if it doesn&#39;t, create it.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Creating temp directory: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+    
+    <span class="c"># specify the cluster job with a command, its arguments, the output and</span>
+    <span class="c"># error paths for the cluster log files and the environment for the job</span>
+    <span class="n">c_job</span> <span class="o">=</span> <span class="n">c_session</span><span class="o">.</span><span class="n">createJobTemplate</span><span class="p">()</span>
+    <span class="n">c_job</span><span class="o">.</span><span class="n">remoteCommand</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">samtoolspath</span>
+    <span class="n">c_job</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="n">c_job</span><span class="o">.</span><span class="n">outputPath</span> <span class="o">=</span> <span class="s">&quot;:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span>
+    <span class="n">c_job</span><span class="o">.</span><span class="n">errorPath</span> <span class="o">=</span> <span class="s">&quot;:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span>
+    <span class="n">c_job</span><span class="o">.</span><span class="n">jobEnvironment</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+    
+    <span class="c"># add support for different cluster queue specifications</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clustq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">c_job</span><span class="o">.</span><span class="n">nativeSpecification</span> <span class="o">=</span> <span class="s">&quot;-clear -q &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">clustq</span>
+    
+    <span class="c"># verbose logging commands</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">drmaa command line:</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">samtoolspath</span><span class="p">,</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c_job</span><span class="o">.</span><span class="n">args</span><span class="p">)))</span>        
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">drmaa output intermediates written too: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> \
+                  <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+    
+    <span class="c"># run the job</span>
+    <span class="n">jobid</span> <span class="o">=</span> <span class="n">c_session</span><span class="o">.</span><span class="n">runJob</span><span class="p">(</span><span class="n">c_job</span><span class="p">)</span>
+    
+    <span class="c"># log the result</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Job submitted with id: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">jobid</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="c"># return the cluster output filename</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">jobid</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/samtools.o</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> 
+                                      <span class="n">jobid</span><span class="p">))</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c"># parse command line options - note that because we&#39;re using python 2.6.4,</span>
+    <span class="c"># and hence optparse rather than argparse, I&#39;m forcing everything to be an</span>
+    <span class="c"># &#39;option&#39; even if it is required.</span>
+    
+    <span class="c"># define options</span>
+    <span class="n">optslist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-d&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--datapath&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;datapath&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Path to the data directory of the experiment.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;input_path&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-l&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--logfile&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;log&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;The name (inc. path if different from the &quot;</span> \
+                             <span class="s">&quot;current working directory) of the log file &quot;</span> \
+                             <span class="s">&quot;from running this script.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;output_file&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-v&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--verbose&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;verbose&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Turn on verbose logging.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">False</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--tmpdir&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;tmpdir&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;The full path of the temp dir you with to use &quot;</span> \
+                             <span class="s">&quot;for storing intermediate files. The default &quot;</span> \
+                             <span class="s">&quot;location for this is a dir called &#39;.temp&#39; in &quot;</span> \
+                             <span class="s">&quot;the current directory.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/.temp&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--clustq&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;clustq&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Set the q to use to run cluster jobs. &quot;</span> \
+                             <span class="s">&quot;Default is 64bit-pri.q.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--samtoolspath&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;samtoolspath&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;The full path to the samtools instalation you &quot;</span> \
+                             <span class="s">&quot;want to use to manipulate sam/bam files. The &quot;</span> \
+                             <span class="s">&quot;default location for samtools is /local/bin/&quot;</span> \
+                             <span class="s">&quot;samtools&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="s">&quot;/local/bin/samtools&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;input_path&quot;</span>
+                    <span class="p">})</span>
+    
+    <span class="c"># build options from commandline</span>
+    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">%prog -d|--datapath &lt;path&gt; -l|--logfile &lt;file&gt; &quot;</span> \
+            <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">[--samtoolspath &lt;path&gt;] [--clustq &lt;str&gt;] &quot;</span> \
+            <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">[--tmpdir &lt;path&gt;] [-v|--verbose] [--help]&quot;</span>
+    
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;%prog v&quot;</span><span class="o">+</span><span class="n">version_string</span><span class="p">)</span>
+        
+    <span class="c">#define option groups</span>
+    <span class="n">reqgroup</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;Required Arguments&quot;</span><span class="p">)</span>
+    
+    <span class="c"># add options to the groups</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">optslist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;group&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;required&quot;</span><span class="p">:</span>
+            <span class="n">reqgroup</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span> 
+                                <span class="n">action</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> <span class="n">dest</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">],</span>
+                                <span class="n">help</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span> 
+                                  <span class="n">action</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> <span class="n">dest</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">],</span> 
+                                  <span class="n">help</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span> <span class="n">action</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> 
+                                  <span class="n">dest</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">],</span> 
+                                  <span class="n">default</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+        
+    <span class="c"># add groups to the parser</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">reqgroup</span><span class="p">)</span>
+    
+    <span class="c"># parse arguments</span>
+    <span class="n">options</span><span class="p">,</span> <span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    
+    <span class="c"># check that all required options have been provided</span>
+    <span class="n">parse_required_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">)</span>
+    
+    <span class="c"># check all values are allowed, or default to, well, the defaults!</span>
+    <span class="n">parse_allowed_values</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">)</span>
+    
+    <span class="c"># check that all options are of the right type (if specified)</span>
+    <span class="n">parse_option_type</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">)</span>
+    
+    <span class="c"># open the logfile and write the basic header information</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="n">write_log_header</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">,</span>
+                           <span class="n">version_string</span><span class="o">=</span><span class="n">version_string</span><span class="p">,</span> 
+                           <span class="n">imported_modules</span><span class="o">=</span><span class="n">imported_modules</span><span class="p">)</span>
+    
+    <span class="n">dirlist</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">datapath</span><span class="p">)</span>
+    <span class="n">bamfiles</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">dirlist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^.+\.bam&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+            <span class="n">bamfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">datapath</span><span class="p">,</span> <span class="n">entry</span><span class="p">))</span>
+        
+    <span class="n">sorted_files</span> <span class="o">=</span> <span class="n">sortOrIndexBams</span><span class="p">(</span><span class="n">bamfiles</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;sort&quot;</span><span class="p">)</span>
+    <span class="n">indexed_files</span> <span class="o">=</span> <span class="n">sortOrIndexBams</span><span class="p">(</span><span class="n">sorted_files</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">options</span><span class="p">,</span>
+                                    <span class="n">mode</span><span class="o">=</span><span class="s">&quot;index&quot;</span><span class="p">)</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: finished&quot;</span> <span class="o">%</span> <span class="n">timeStr</span><span class="p">())</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

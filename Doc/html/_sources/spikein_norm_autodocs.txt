@@ -1,0 +1,19 @@
+.. spikein_norm_autodocs:
+
+***************************************************
+GRNASeq Spike-in Normalization Script documentation
+***************************************************
+
+Contents:
+
+..	toctree::
+	:maxdepth: 1
+
+	getSpikeCounts_autodocs
+	getGeneCounts_autodocs
+	byLane_profiles_autodocs
+	bySample_profiles_autodocs
+	spikedata_cluster_comparison_autodocs
+	doseResponse_autodocs
+
+	

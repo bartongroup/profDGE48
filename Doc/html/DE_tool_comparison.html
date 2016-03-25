@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Comparing Differential Expression Tools &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="comparing-differential-expression-tools">
+<span id="detoolcomp"></span><h1>Comparing Differential Expression Tools<a class="headerlink" href="#comparing-differential-expression-tools" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="gene-ranking-sigprop-pl">
+<span id="gene-ranking-sigprop-perldoc"></span><h1>gene_ranking_sigprop.pl<a class="headerlink" href="#gene-ranking-sigprop-pl" title="Permalink to this headline">¶</a></h1>
+<p>Creates a table of gene ranking according to DE tests. Genes from each DE test
+are ranked, a score for each gene is calculated and a table (sorted by the
+score) with all genes from all tools is produced. This script uses a different
+approach to <a class="reference internal" href="#gene-ranking-perldoc"><em>gene_ranking.pl</em></a>.  It looks at a
+proportion of significant DE calls across bootstraps for each gene. This is
+calculated by <a class="reference internal" href="#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a> and
+stored in files <em>(prefix)_sigprop.stats</em>. This scripts simply reads these files
+and collates information:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">gene_ranking</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">testinfofile</span><span class="o">=</span><span class="n">de_tests</span><span class="o">.</span><span class="n">dat</span> <span class="o">-</span><span class="n">outfile</span><span class="o">=</span><span class="n">gene_ranking</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-dir</cite> - Directory with results from <a class="reference internal" href="#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-testinfofile</cite> - A file with DE tools metadata. See <a class="reference internal" href="plotting.html#plot-fcp-perldoc"><em>plot_fcp.pl</em></a> for details.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Name of the output file. The default name is <em>gene_ranking.csv</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - A file with a list of gene names (first column) to use. The default name is <em>genlist.tsv</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-nrep</cite> - Use the specific number of replicates (from bootstrap tests) to do ranking. If not specified, the full clean replicate set results (as specified in <em>defs.dat</em> file) will be used.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-allrep</cite> - Loop through all replicates and produce one ranking file for each.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-pfc</cite> - If specified, ranking is done on p-values and fold changes (if not specified, ranking is done only on p-values).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-sig</cite> - If specified, significance will be used to rank genes as opposed to p-value/fold change.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-multicor=[none|BH|HB]</cite> - Multiple test correction to apply to tests/tools that return uncorrected raw p-values. The default value is <em>BH</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-exclude</cite> - A comma delimited list of tools/tests to exclude from analysis.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="gene-ranking-pl">
+<span id="gene-ranking-perldoc"></span><h1>gene_ranking.pl<a class="headerlink" href="#gene-ranking-pl" title="Permalink to this headline">¶</a></h1>
+<p>Creates a table of gene ranking according to DE tests. Genes from each DE test
+are ranked, a score for each gene is calculated and a table (sorted by the
+score) with all genes from all tools is produced. There are two ways of
+ranking genes from individual DE tools (controlled by <em>-sig</em> option).
+The first method ranks them by the increasing p-values. Where p-values are
+identical (e.g. equal zero), ranking is (optionally, see option <em>-pfc</em>) done
+by the decreasing absolute fold change. The score for a gene is then the rank
+product.</p>
+<p>The second method looks only at significance of each gene,
+according to a given criterion. 0/1 is assigned for significant/non-significant
+gene. The score is the sum of these 0/1s:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">gene_ranking</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">testinfofile</span><span class="o">=</span><span class="n">de_tests</span><span class="o">.</span><span class="n">dat</span> <span class="o">-</span><span class="n">outfile</span><span class="o">=</span><span class="n">gene_ranking</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-tests</cite> - Comma-delimited list of test names (as defined in the file specified by <em>-testinfofile</em>) to be included.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-testinfofile</cite> - A file with DE tools metadata. See <a class="reference internal" href="plotting.html#plot-fcp-perldoc"><em>plot_fcp.pl</em></a> for details.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Name of the output file. The default name is <em>gene_ranking.csv</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - A file with a list of gene names (first column) to use. The default name is <em>genlist.tsv</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-pfc</cite> - If specified, ranking is done on p-values and fold changes (if not specified, ranking is done only on p-values).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-sig</cite> - If specified, significance will be used to rank genes as opposed to p-value/fold change.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-multicor=[none|BH|HB]</cite> - Multiple test correction to apply to tests/tools that return uncorrected raw p-values. The default value is C&lt;BH&gt;.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="make-powerstats-db-pl">
+<span id="make-powerstats-db-perldoc"></span><h1>make_powerstats_db.pl<a class="headerlink" href="#make-powerstats-db-pl" title="Permalink to this headline">¶</a></h1>
+<p>Calculates power statistics (true positives, true negatives, false positives,
+false negatives) for each test/tool against a chosen &#8220;true standard&#8221;. The
+power stats are calculated for a range of replicates, while the true standard
+is a test result for the full clean data set. You need to run all power
+bootstraps first. The results are stored in a directory to be used later to
+create comparative power plots.</p>
+<p>This script uses data directly from db files, and counts true/false
+positives/negatives for each bootstrap separately, then combining these
+results and reporting mean and standard deviation. An alternative approach
+is used in <em class="xref std std-ref">make_powerstats.pl</em>, where median
+p-values across bootstraps are used.</p>
+<p>This script is a wrapper around
+<a class="reference internal" href="#one-bs-powerstats-perldoc"><em>one_bs_powerstats.pl</em></a>, and it runs
+it on the cluster:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">make_powerstats_db</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">test</span><span class="o">=</span><span class="n">edger</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-test</cite> - Name of the test/tool to plot results for. As defined in the metadata file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-testinfofile</cite> - A file with DE tools metadata. See <a class="reference internal" href="plotting.html#plot-fcp-perldoc"><em>plot_fcp.pl</em></a> for details. Default name is <em>de_tests.txt</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-script</cite> - This should be the full path to the <em class="xref std std-ref">one_bs_powerstats_db.pl</em> script that this wrapper runs.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-logdir</cite> - Path to the directory where all intermediate files are stored. Default is <em>./powerstats_logs</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-powerdir</cite> - Path to the directory where results are saved. Default value is <em>powerstats_db_ref.</em></td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-maxn</cite> - Maximum number of replicates to be used. The default value is 40.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-queue</cite> - Grid engine queue name (or names, comma-separated).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - A file with the list of genes. Created by <em class="xref std std-ref">make_gene_list.pl</em>. The default value is <em>genlist.tsv</em>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-reffcfile</cite> - A file with reference log2-fold-changes (in the second column) and gene names (first column). These fold changes will be used for consistency. This file can be created, e.g., by the following command. <strong class="command">simple_de_test.pl -test=mw -clean -outfile=WT_Snf2_deseq_clean_mw_test.tsv</strong>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="one-bs-powerstats-pl">
+<span id="one-bs-powerstats-perldoc"></span><h1>one_bs_powerstats.pl<a class="headerlink" href="#one-bs-powerstats-pl" title="Permalink to this headline">¶</a></h1>
+<p>To be used by <a class="reference internal" href="#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a>. Not
+to be run on its own.</p>
+<p>=head1 OPTIONS</p>
+<p>=over 5</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - File with list of genes.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-dbfile</cite> - Input sqlite .db file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-totfile -fcfile1, -fcfile2, -rocfile, -truefile, -nsigfile, -sigpropfile</cite> - Various temporary files to communicate with the parent script.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-multicor</cite> - Multiple test correction.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-truecor</cite> - Multiple test correction used in the &#8216;true&#8217; file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-alpha</cite> - Significance limit. Default value is 0.05.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-fcsig</cite> - Sign of log-fold-change.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-reffcfil</cite> - The same as in the parent script.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-colp</cite> - Column with p-values.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Comparing Differential Expression Tools</a></li>
+<li><a class="reference internal" href="#gene-ranking-sigprop-pl">gene_ranking_sigprop.pl</a></li>
+<li><a class="reference internal" href="#gene-ranking-pl">gene_ranking.pl</a></li>
+<li><a class="reference internal" href="#make-powerstats-db-pl">make_powerstats_db.pl</a></li>
+<li><a class="reference internal" href="#one-bs-powerstats-pl">one_bs_powerstats.pl</a><ul>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/DE_tool_comparison.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

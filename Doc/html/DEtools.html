@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Differential Expression Tool Scripts &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="differential-expression-tool-scripts">
+<span id="detools"></span><h1>Differential Expression Tool Scripts<a class="headerlink" href="#differential-expression-tool-scripts" title="Permalink to this headline">¶</a></h1>
+<p>These are the <a class="reference external" href="https://www.r-project.org/">R</a> scripts that actually run each
+Differential Expression (DE) call
+on each of the bootstrap runs instances by <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>.
+These scripts all have a standard interface, taking in four standard positional
+arguments that <a class="reference internal" href="bootstrapping.html#genwrap-rinterface"><em>generic_wrapper&#8217;s R interface</em></a> provides.</p>
+<p>The arguments are:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>exprsFile</cite> - A tab-delimited expression counts file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>groupsFile</cite> - A file containging the pheno, or grouping, information for the data</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>outFile</cite> - The output filename for the called DE data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>normalise</cite> - Normalise the data? If this is set to <em>package:default&#8217;</em> the default normalization for the tool will be used.</td>
+</tr>
+</tbody>
+</table>
+<p>Most of the tools are available in <a class="reference external" href="https://www.bioconductor.org/">Bioconductor</a>. The analysis presented in <a class="reference external" href="http://bioinformatics.oxfordjournals.org/content/early/2015/07/22/bioinformatics.btv425.abstract">Gierlinski et. al. (2015)</a>
+and <a class="reference external" href="http://arxiv.org/abs/1505.02017">Schurch et. al. (2015)</a> used <a class="reference external" href="https://cran.r-project.org/src/base/R-3/R-3.2.2.tar.gz">R 3.2.2</a>
+and <a class="reference external" href="https://www.bioconductor.org/packages/3.2/BiocViews.html">bioconductor 3.2</a>.</p>
+</div>
+<div class="section" id="bayseq-r">
+<span id="bayseq-rdoc"></span><h1>baySeq.R<a class="headerlink" href="#bayseq-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/3.2/bioc/html/baySeq.html">baySeq v2.4.1</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript bayseq.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="cuffdiff-pq-pl">
+<span id="cuffdiff-pq-perldoc"></span><h1>cuffdiff_pq.pl<a class="headerlink" href="#cuffdiff-pq-pl" title="Permalink to this headline">¶</a></h1>
+<p>Replace p-values (column 3) with q-values (column 4) in cuffdiff output</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-infile</cite> - Input file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Output file.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="degseq-r">
+<span id="degseq-rdoc"></span><h1>DEGSeq.R<a class="headerlink" href="#degseq-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/3.2/bioc/html/DEGseq.html">DEGSeq v1.24.0</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript degseq.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="deseq-r">
+<span id="deseq-rdoc"></span><h1>DESeq.R<a class="headerlink" href="#deseq-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/3.2/bioc/html/DESeq.html">DESeq v1.22.1</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript deseq.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="deseq2-r">
+<span id="deseq2-rdoc"></span><h1>DESeq2.R<a class="headerlink" href="#deseq2-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/3.2/bioc/html/DESeq2.html">DESeq2 v1.10.1</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript deseq2.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="ebseq-r">
+<span id="ebseq-rdoc"></span><h1>EBSeq.R<a class="headerlink" href="#ebseq-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/3.2/bioc/html/EBSeq.html">EBSeq v1.10.0</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript ebseq.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="edger-r">
+<span id="edger-rdoc"></span><h1>edgeR.R<a class="headerlink" href="#edger-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/2.11/bioc/html/edgeR.html">edgeR v3.12.0</a>
+on a set of data. This tool has two modes - exact (<em>edgeR.R</em>) and general
+linear model (<em>edgeRglm.R</em>):</p>
+<div class="highlight-python"><pre>Rscript edgeR.R geneExprFile groupsFile outFile normalisation
+Rscript edgeRglm.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="limma-r">
+<span id="limma-rdoc"></span><h1>limma.R<a class="headerlink" href="#limma-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/3.2/bioc/html/limma.html">limma v3.26.8</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript limma.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="noiseq-r">
+<span id="noiseq-rdoc"></span><h1>noiseq.R<a class="headerlink" href="#noiseq-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://www.bioconductor.org/packages/3.2/bioc/html/NOISeq.html">NOISeq v2.14.1</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript noiseq.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="poissonseq-r">
+<span id="poissonseq-rdoc"></span><h1>poissonseq.R<a class="headerlink" href="#poissonseq-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://cran.r-project.org/web/packages/PoissonSeq/index.html">PoissonSeq v1.1.2</a>
+on a set of data:</p>
+<div class="highlight-python"><pre>Rscript poissonseq.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+<div class="section" id="run-cuffdiff-pl">
+<span id="run-cuffdiff-perldoc"></span><h2>run_cuffdiff.pl<a class="headerlink" href="#run-cuffdiff-pl" title="Permalink to this headline">¶</a></h2>
+<p>This script is a wrapper around <a class="reference external" href="http://cole-trapnell-lab.github.io/cufflinks/releases/v2.1.1/">cuffdiff v2.1.1</a>.
+It takes BAM files from provided directories, runs cuffdiff and converts its
+output to the required format:</p>
+<div class="highlight-python"><pre>run_cuffdiff.pl -d=/cluster/gjb_lab/cdr/GRNAseq/mapping/genome_biol_reps -p=cuffdiff_results -g=Scerevisiae68_ERCC92.fasta -a=Saccharomyces_cerevisiae.EF4.68.gtf -o=cuffdiff_expr.tsv</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-datapath|d</cite> - Path to the data directory of the experiment. Each sub-directory in this will be treated as a separate condition in the experiment (with the name of the condition matching the name of the directory), and each .bam file in each directory is a replicate for that condition.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outpath|p</cite> - Path to the output directory, where cufflinks will write numerous output files.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-otufile|o</cite> - The name (inc. path) of the output file from the wrapper.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-annotation|a</cite> - Path to the .gff feature annotation file for the data. This file should match the feature you are counting the RNA-Seq expression for.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-genome|g</cite> - Path to the FASTA file with reference genome. This is used by cuffdiff to run its bias detection and correction algorithm which can significantly improve accuracy of transcript abundance estimates. You should have write access to the directory with this file as cufflinks will attempt to write an index file there. It might be a good idea to copy genome file (or a link) into your local directory.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-conditions|c</cite> - Comma-separated list of conditions. (Default: <em>&lt;WT,Snf2&gt;</em>).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-threads</cite> - Number of threads to be used by cuffdiff.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="samseq-r">
+<span id="samseq-rdoc"></span><h1>samseq.R<a class="headerlink" href="#samseq-r" title="Permalink to this headline">¶</a></h1>
+<p>Run <a class="reference external" href="https://cran.r-project.org/web/packages/samr/">SAMSeq v 2.0</a> on a set of data:</p>
+<div class="highlight-python"><pre>Rscript samseq.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="t-test-equal-r">
+<span id="ttest-equal-rdoc"></span><h1>t-test_equal.R<a class="headerlink" href="#t-test-equal-r" title="Permalink to this headline">¶</a></h1>
+<p>Run a T-test on a set of data. Uses the <a class="reference external" href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/t.test.html">t.test() function</a>
+internal to R with var.equal set to <em>TRUE</em>, specifying equal variances in
+the data and uses a pooled variance estimate:</p>
+<div class="highlight-python"><pre>Rscript t-test_equal.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+</div>
+<div class="section" id="t-test-unequal-r">
+<span id="ttest-unequal-rdoc"></span><h1>t-test_unequal.R<a class="headerlink" href="#t-test-unequal-r" title="Permalink to this headline">¶</a></h1>
+<p>Run a T-test on a set of data. Uses the <a class="reference external" href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/t.test.html">t.test() function</a> function internal to R with
+var.equal set to <em>FALSE</em>:</p>
+<div class="highlight-python"><pre>Rscript t-test_unequal.R geneExprFile groupsFile outFile normalisation</pre>
+</div>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Differential Expression Tool Scripts</a></li>
+<li><a class="reference internal" href="#bayseq-r">baySeq.R</a></li>
+<li><a class="reference internal" href="#cuffdiff-pq-pl">cuffdiff_pq.pl</a></li>
+<li><a class="reference internal" href="#degseq-r">DEGSeq.R</a></li>
+<li><a class="reference internal" href="#deseq-r">DESeq.R</a></li>
+<li><a class="reference internal" href="#deseq2-r">DESeq2.R</a></li>
+<li><a class="reference internal" href="#ebseq-r">EBSeq.R</a></li>
+<li><a class="reference internal" href="#edger-r">edgeR.R</a></li>
+<li><a class="reference internal" href="#limma-r">limma.R</a></li>
+<li><a class="reference internal" href="#noiseq-r">noiseq.R</a></li>
+<li><a class="reference internal" href="#poissonseq-r">poissonseq.R</a><ul>
+<li><a class="reference internal" href="#run-cuffdiff-pl">run_cuffdiff.pl</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#samseq-r">samseq.R</a></li>
+<li><a class="reference internal" href="#t-test-equal-r">t-test_equal.R</a></li>
+<li><a class="reference internal" href="#t-test-unequal-r">t-test_unequal.R</a><ul>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/DEtools.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

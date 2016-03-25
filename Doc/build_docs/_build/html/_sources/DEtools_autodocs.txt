@@ -1,0 +1,19 @@
+.. DEtools_autodocs:
+.. _DEtools_autodocs:
+
+************************************
+Differential Expression Tool Scripts
+************************************
+
+..	toctree::
+	:maxdepth: 1
+
+	BaySeq_autodocs
+	cuffdiff_autodocs
+	DEseq_autodocs
+	DEGseq_autodocs
+	edgeR_autodocs
+	limma_autodocs
+	NOIseq_autodocs
+	PoissonSeq_autodocs
+	SAMSeq_autodocs

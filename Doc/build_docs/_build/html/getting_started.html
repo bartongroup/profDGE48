@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" />
+    <link rel="next" title="How to make this Documentation" href="makedocs.html" />
+    <link rel="prev" title="Getting Started" href="" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="makedocs.html" title="How to make this Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="#" title="Getting Started"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<span id="install"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>This is a brief run-through of how to reproduce (some of) the key performance
+results for the Differential Gene Expression (DGE) tools examined in
+<a class="reference internal" href="index.html#paper2"><em>Schurch et. al. (2015)</em></a>. This is not an extensive
+description of how to use all the scripts in the repository or even all the
+scripts used to generate the results and plots presented in
+<a class="reference internal" href="index.html#paper1"><em>Gierlinski et. al. (2015)</em></a>.</p>
+<div class="section" id="get-the-data">
+<h2>Get the Data<a class="headerlink" href="#get-the-data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="raw-data">
+<h3>Raw Data<a class="headerlink" href="#raw-data" title="Permalink to this headline">¶</a></h3>
+<p>The raw fastq data for The Great RNA-seq Experiment has been deposited in the
+<a class="reference external" href="http://www.ebi.ac.uk/ena">European Nucleotide Archive</a> and can be
+downloaded from <a class="reference external" href="http://www.ebi.ac.uk/ena/data/view/PRJEB5348">here</a>. The
+lane, sample and replicate metadata for the rather anonymously named ENA fastq
+files can be found in
+<a class="reference internal" href="preprocessed_data.html#enadata-erp004763-sample-mapping-tsv"><em>ENAdata_ERP004763_sample_mapping.tsv</em></a> or can be
+downloaded independently from <a class="reference external" href="https://figshare.com/articles/Metadata_for_a_highly_replicated_two_condition_yeast_RNAseq_experiment_/1416210">figshare here</a>.</p>
+<p>For Section 3.1 of <a class="reference internal" href="index.html#paper1"><em>Gierlinski et. al. (2015)</em></a> the lane data are
+examined independently but for the majority of the work presented in both
+papers the lane data are summarized to give biological replicate data. The
+simplest way to do that is to cat the lane fastq files for each biological
+replicate into a single file for each replicate.</p>
+<p>The resulting reads then need to be aligned to genome with <a class="reference external" href="https://en.wikipedia.org/wiki/List_of_RNA-Seq_bioinformatics_tools#Spliced_aligners">your
+preferred alignment tool</a>.
+We used <a class="reference external" href="https://github.com/genome-vendor/bowtie/tree/b2.0.0-beta7">bowtie v2.0.0 (beta7)</a> and <a class="reference external" href="http://ccb.jhu.edu/software/tophat/downloads/tophat-2.0.5.Linux_x86_64.tar.gz">TopHat
+v2.0.5</a>
+to align the reads to the Saccharomyces cerevisiae EF4 genome from Ensembl
+release v68. This specific Ensembl release is no longer available, but the EF4
+genome is available
+<a class="reference external" href="http://jan2013.archive.ensembl.org/Saccharomyces_cerevisiae/Info/Index">here</a>
+as part of the Ensembl v70 archive.</p>
+<p>If the alignment tool doesn&#8217;t produce <a class="reference external" href="https://samtools.github.io/hts-specs/SAMv1.pdf">BAM format</a> output by default, then
+the output alignments will then need to be converted to BAM format. The BAM
+files need to be position sorted and indexed. There are several tools availble
+for these steps including  <a class="reference external" href="http://www.htslib.org/">samtools</a>, <a class="reference external" href="https://github.com/lomereiter/sambamba">sambamba</a> and <a class="reference external" href="http://broadinstitute.github.io/picard/">Picard</a>.</p>
+<p>The BAM files (<em>.bam</em>) and their indexes (<em>.bai</em>) files for the replicates of
+each condition then need to be separated into two individual directories that
+will be passed to the script <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>
+which will generate the count summaries from the bam data.</p>
+</div>
+<div class="section" id="pre-processed-count-data">
+<h3>Pre-processed count data<a class="headerlink" href="#pre-processed-count-data" title="Permalink to this headline">¶</a></h3>
+<p>Alternatively, <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a> can operate
+directly on appropriately named (<em>&lt;name&gt;.gbgout</em> by default) <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> count data by
+specifying the <tt class="docutils literal"><span class="pre">--precounts</span></tt> flag (again separated into two directories, one
+for each condition). For convenience, the count files for each condition from
+our analysis are included in the repository as gzipped tar archives in the
+<em>Preprocessed_data</em> directory. We&#8217;ll perform the example run in the directory
+<em>testDGE</em>:</p>
+<div class="highlight-python"><pre>mkdir testDGE
+cd testDGE
+mkdir WT
+mkdir Snf2
+cd WT
+tar zxvf Preprocessed_data/WT_countdata.tar.gz
+cd ../Snf2
+tar zxvf Preprocessed_data/Snf2_countdata.tar.gz
+cd ../</pre>
+</div>
+</div>
+</div>
+<div class="section" id="generating-the-bootstrap-dge-data-for-a-dge-tools">
+<h2>Generating the bootstrap DGE data for a DGE tools<a class="headerlink" href="#generating-the-bootstrap-dge-data-for-a-dge-tools" title="Permalink to this headline">¶</a></h2>
+<p>The performance of each DGE tool as a function of replicate number and
+expression fold‐change was evaluated by comparing the DGE results from
+sub‐sets of the full set of clean replicates against a ‘gold standard’ set of
+DGE results calculated for each tool using the full set of clean replicates.
+These bootstrap DGE results are computed by providing the
+<a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a> script with details of which
+tool to use, how many bootstrap calculations to perform, how many replicates to
+use for each bootstrap.</p>
+<p>By default <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a> runs in
+DRMAA-cluster-aware mode that spawns a set of cluster jobs for performing the
+bootstrap runs efficiently (please make sure that the relevant environmental
+variables are set appropriately for the python DRMAA library to successfully
+access your cluster). If you do not have access to a DRMAA-compatible cluster,
+the bootstraps can be run serially on a single machine by specifying the
+<tt class="docutils literal"><span class="pre">--nocluster</span></tt> flag but this is likely to take a considerable amount of time.</p>
+<p>The <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>. needs the following
+external tools to run:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="http://sourceforge.net/projects/samtools/files/samtools/0.1.18/">samtools</a> (<tt class="docutils literal"><span class="pre">--samtoolspath</span></tt>)</li>
+<li><a class="reference external" href="https://cran.r-project.org/src/base/R-3/R-3.2.2.tar.gz">R v3.2.2</a> (<tt class="docutils literal"><span class="pre">--Rpath</span></tt>)</li>
+<li><a class="reference external" href="http://dev.perl.org/perl5/news/2008/perl-5.8.9.html">perl v5.8.9</a> (<tt class="docutils literal"><span class="pre">--perlpath</span></tt>)</li>
+</ul>
+</div></blockquote>
+<p>By default these are set to <em>/usr/bin/&lt;perl/Rscript/samtools&gt;</em>. If the
+defaults are incorrect for your setup you&#8217;ll need to provide the full paths to these
+tools.</p>
+<p>We&#8217;ll also need to provide the details of the DGE tool to use,
+the path data, which data are bad, the gene annotations, the number of
+bootstrap iterations to perform and the number of replicates to use from each
+condition for each bootstrap and, finally, the output sqlite database to write
+the results too (the path for this output needs to exist already) and a log
+file to record out run <a class="footnote-reference" href="#f1" id="id3">[1]</a>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">-r</span></tt> - the path to the DGE tool Rscript to use. These can be found in the <em>DE_tool_scripts</em> directory.</li>
+<li><tt class="docutils literal"><span class="pre">-d</span></tt> - the path to the two data directories to use. For our example this is <em>testDGE</em>.</li>
+<li><tt class="docutils literal"><span class="pre">-e</span></tt> - a file listing the bad replicates to be excluded. An example file can be found in the <em>General</em> directory but this will need to be edited to reflect your data location.</li>
+<li><tt class="docutils literal"><span class="pre">-a</span></tt> - the path to the gene annotation we want to use. This can be found in the <em>Annotations</em> directory.</li>
+<li><tt class="docutils literal"><span class="pre">-b</span></tt> - the number of bootstrap runs to perform.</li>
+<li><tt class="docutils literal"><span class="pre">-k</span></tt> - the number of replicates to select for each bootstrap.</li>
+<li><tt class="docutils literal"><span class="pre">-o</span></tt> - the output file.</li>
+<li><tt class="docutils literal"><span class="pre">-l</span></tt> - the log file.</li>
+</ul>
+</div></blockquote>
+<p>In our case the resulting command looks like this:</p>
+<div class="highlight-python"><pre>Bootstrapping/generic_wrapper.py -r DE_tool_scripts/edgeR.R -d testDGE -a Annotations/Saccharomyces_cerevisiae.EF4.68.gtf
+-b 10 -k 3 --precounts -e General/exclude_badreps.lst -o edgeRa/edgeR_k03.db -l edgeR_k03.log</pre>
+</div>
+<p>This should produce a single sqlite database (<em>.db</em>) file containing all the
+results and logfiles from these bootstrap runs and a log file. In order to make
+the plots from <a class="reference internal" href="index.html#paper2"><em>Schurch et. al. (2015)</em></a> we will need to run this
+for and range of tool, each with a range of sample sizes, <tt class="docutils literal"><span class="pre">k=2..40</span></tt>. The
+wrapper bash-scripts
+<a class="reference internal" href="bootstrapping.html#qsub-bootstraps-withexcludelist-shdoc"><em>qsub_bootstraps_withexcludelist.sh</em></a>
+&amp; <a class="reference internal" href="bootstrapping.html#qsub-bootstraps-withoutexludelist-shdoc"><em>qsub_bootstraps_withoutexludelist.sh</em></a>
+are quick-and-dirty utility scripts to automate stepping through <tt class="docutils literal"><span class="pre">-k</span></tt>. The
+final result should be a set of 39 sqlite databases and their associated logfiles for
+each tool.</p>
+</div>
+<div class="section" id="generating-tool-performance-plots">
+<h2>Generating Tool Performance Plots<a class="headerlink" href="#generating-tool-performance-plots" title="Permalink to this headline">¶</a></h2>
+<p>In order to assess the performance of each tool, first we need to define a
+&#8216;truth&#8217; against which to test it. In <a class="reference internal" href="index.html#paper2"><em>Schurch et. al. (2015)</em></a> we
+defined the truth for each tool as the differential expression calls using that
+tool with the full set of &#8216;clean&#8217; replicate data. For convenience, these
+gold-standard truths are provided for the tools examined in
+<a class="reference internal" href="index.html#paper2"><em>Schurch et. al. (2015)</em></a> as a compredssed tar archive in the
+<em>Preprocessed_data</em> directory.</p>
+<p>Alternatively, you can generate the appropriate gold-standard
+truth with a call to <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>
+without specifying any replicate subselection or bootstrapping <a class="footnote-reference" href="#f2" id="id4">[2]</a>:</p>
+<div class="highlight-python"><pre>Bootstrapping/generic_wrapper.py -r DE_tool_scripts/edgeR.R -d testDGE -a Annotations/Saccharomyces_cerevisiae.EF4.68.gtf
+--precounts -e General/exclude_badreps.lst -o edgeR_gold.txt -l edgeR_gold.log</pre>
+</div>
+<p>This may take a few minutes since the code calls the perl Ensembl API to
+provide gene names and descriptions for the output results.</p>
+<div class="section" id="individual-tool-performance-plots-fig-1">
+<h3>Individual tool performance plots (Fig. 1)<a class="headerlink" href="#individual-tool-performance-plots-fig-1" title="Permalink to this headline">¶</a></h3>
+<p>To assess the performace of each individual tool we then look at the total
+number of genes called as Significantly Differentially Expressed (SDE) in each
+bootstrap replicate subselection and compare this with the tool gold-standard
+truth to define the True Positive, False Positive, True Negative and
+False Negative Rates (TPR, FPR, TNR, FNR) as a function of the number of
+replicates and as a function of fold-change threshold.</p>
+<p>First we need to summarize the boostrap data for the tool using
+<a class="reference internal" href="DE_tool_comparison.html#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a>. This script submits
+jobs to a DRMAA-enabled cluster and will not operate on a stand-alone machine.
+Before we run this script  we need to edit the configuration file
+<em>de_tests.txt</em> to point the <em>fullfile</em> field at the gold-standard truth file
+for each tool and to point the <em>repfile</em> field to the bootstrap database files
+we just created for each tool. Note that the <em>repfile</em> field can use perl
+regex wildcards and because of historical oddities the entry must end with
+.tsv instead of .db (don&#8217;t worry, it&#8217;ll find the right .db files if you follow
+along!).</p>
+<p>For our example using <em>edgeR</em> the entry looks like this:</p>
+<div class="highlight-python"><pre>TEST edger
+name = edgeR
+repfile = edgeR/edgeR_k%02d.tsv
+fullfile = edgeR_gold.txt
+adjustment = bh
+FCsig = -1</pre>
+</div>
+<p>With that done we can then run
+<a class="reference internal" href="DE_tool_comparison.html#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a> <a class="footnote-reference" href="#f3" id="id5">[3]</a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DE_tool_comparison</span><span class="o">/</span><span class="n">make_powerstats_db</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">test</span><span class="o">=</span><span class="n">edger</span> <span class="o">-</span><span class="n">testinfofile</span><span class="o">=</span><span class="n">General</span><span class="o">/</span><span class="n">de_tests</span><span class="o">.</span><span class="n">txt</span>
+<span class="o">-</span><span class="n">script</span><span class="o">=</span><span class="n">DE_tool_comparison</span><span class="o">/</span><span class="n">one_bs_powerstats</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">genlist</span><span class="o">=</span><span class="n">General</span><span class="o">/</span><span class="n">genlist</span><span class="o">.</span><span class="n">tsv</span> <span class="o">-</span><span class="n">powerdir</span><span class="o">=</span><span class="n">edger_powerstats</span>
+<span class="o">-</span><span class="n">reffcfile</span><span class="o">=</span><span class="n">Preprocessed_data</span><span class="o">/</span><span class="n">full_rep_gold_standards</span><span class="o">/</span><span class="n">WT_Snf2_deseq_clean_mw_test</span><span class="o">.</span><span class="n">tsv</span>
+</pre></div>
+</div>
+<p>This will create a set os summary statistics files in the <em>edger_powerstats</em>
+directory. The final plots are made with <a class="reference internal" href="plotting.html#plot-powerstats-db-perldoc"><em>plot_powerstats_db.pl</em></a>
+which uses these summary statistic files and outputs a postscript file:</p>
+<div class="highlight-python"><pre>Plotting/plot_powerstats_db.pl -test=edger -psfile=powertest_edger.ps -testinfofile=General/de_tests.txt
+-powerdir=edger_powerstats minnrep=2</pre>
+</div>
+<p>The result should be the following four panel postscript figure showing the
+performance of the tool:</p>
+<img alt="_images/powertest_edger.png" src="_images/powertest_edger.png" />
+</div>
+</div>
+<div class="section" id="further-analysis">
+<h2>Further analysis<a class="headerlink" href="#further-analysis" title="Permalink to this headline">¶</a></h2>
+<p>Generating the other figures for the paper is a more involved process and is not
+covered by this introduction. For help using the codebase to generate these
+figures, or if you have a tool you&#8217;d like us to add into our analysis and
+generate figures for, please contact
+<a class="reference external" href="http://www.compbio.dundee.ac.uk/contact.html">Prof. Geoff Barton</a>
+at the <a class="reference external" href="http://www.dundee.ac.uk/">University of Dundee</a>.</p>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>Please also ensure that your <em>PYTHONAPTH</em> environmental variable includes the path to the root directory of the codebase.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td>Please also ensure that your <em>PERL5LIB</em> environmental variable includes the path to the <em>Modules</em> directory of the codebase and includes the full path to the ensembl API <em>bioperl-live</em> and <em>modules</em> directories.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>Please ensure that your <em>PERL5LIB</em> environmental variable includes the path to the <em>Modules</em> directory of the codebase.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#get-the-data">Get the Data</a><ul>
+<li><a class="reference internal" href="#raw-data">Raw Data</a></li>
+<li><a class="reference internal" href="#pre-processed-count-data">Pre-processed count data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generating-the-bootstrap-dge-data-for-a-dge-tools">Generating the bootstrap DGE data for a DGE tools</a></li>
+<li><a class="reference internal" href="#generating-tool-performance-plots">Generating Tool Performance Plots</a><ul>
+<li><a class="reference internal" href="#individual-tool-performance-plots-fig-1">Individual tool performance plots (Fig. 1)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#further-analysis">Further analysis</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href=""
+                        title="previous chapter">Getting Started</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="makedocs.html"
+                        title="next chapter">How to make this Documentation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/getting_started.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="makedocs.html" title="How to make this Documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="#" title="Getting Started"
+             >previous</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

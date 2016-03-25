@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>General scripts and files &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="general-scripts-and-files">
+<span id="general"></span><h1>General scripts and files<a class="headerlink" href="#general-scripts-and-files" title="Permalink to this headline">¶</a></h1>
+<p>General scripts and configuration files essential for the analysis.</p>
+</div>
+<div class="section" id="combine-replicates-pl">
+<span id="combine-replicates-perldoc"></span><h1>combine_replicates.pl<a class="headerlink" href="#combine-replicates-pl" title="Permalink to this headline">¶</a></h1>
+<p>Combine counts from individual condition/replicate/lane files into multicolumn
+files. Genes in all files <strong>must</strong> be in the same order. Warning: replicate and
+lane number and file name templates hardcoded in the script.:</p>
+<div class="highlight-python"><pre>combine_replicates.pl -indir=&lt;input dir&gt; -outdir=&lt;output dir&gt; -bioreps</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-bioreps</cite> -  tells the script to do biological replicates instead of lanes.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="de-tests-txt">
+<span id="de-tests-configfile"></span><h1>de_tests.txt<a class="headerlink" href="#de-tests-txt" title="Permalink to this headline">¶</a></h1>
+<p>Configuration file describing all tests and tools for the powertests. Entries
+should include:</p>
+<blockquote>
+<div><blockquote>
+<div><ul class="simple">
+<li>name - name of the test to be displayed</li>
+<li>repflie - format for bootstrap results (an FCP file) for all replicates (%d stands for replicate number)</li>
+<li>sp_repfile = for spike-in bootstrap results (FCP file)</li>
+<li>fullfile = result (FCP file) for full clean replicate set</li>
+<li>adjustment = multiple test adjustment used by the tool to obtain p-values (none, BH or HB)</li>
+<li>FCsig = optional sign correction for fold-change (+1 or -1)</li>
+</ul>
+</div></blockquote>
+<p>FCP files are tab-delimited with (at least) three columns: geneid, log2
+foldchange and p-value.</p>
+</div></blockquote>
+</div>
+<div class="section" id="de-tests-samecond-txt">
+<span id="de-tests-samecond-configfile"></span><h1>de_tests_samecond.txt<a class="headerlink" href="#de-tests-samecond-txt" title="Permalink to this headline">¶</a></h1>
+<p>Configuration file describing all tests and tools for the null (same condition)
+FDR tests. Entries should include:</p>
+<blockquote>
+<div><blockquote>
+<div><ul class="simple">
+<li>name - name of the test to be displayed</li>
+<li>repflie - format for bootstrap results (an FCP file) for all replicates (%d stands for replicate number)</li>
+<li>sp_repfile = for spike-in bootstrap results (FCP file)</li>
+<li>fullfile = result (FCP file) for full clean replicate set</li>
+<li>adjustment = multiple test adjustment used by the tool to obtain p-values (none, BH or HB)</li>
+<li>FCsig = optional sign correction for fold-change (+1 or -1)</li>
+</ul>
+</div></blockquote>
+<p>FCP files are tab-delimited with (at least) three columns: geneid, log2
+foldchange and p-value.</p>
+</div></blockquote>
+</div>
+<div class="section" id="defs-dat">
+<span id="defs-dat-configfile"></span><h1>defs.dat<a class="headerlink" href="#defs-dat" title="Permalink to this headline">¶</a></h1>
+<p>Simple text configuration file describing file locations, clean replicates and
+condition IDs, for example.:</p>
+<div class="highlight-python"><pre>topdir = rootpath
+countsdir = combined_counts
+outlierdir = outliers
+pileupdir = pileup
+bootstrapdir = bootstrapscat
+gfffile = Saccharomyces_cerevisiae.EF4.68.gtf
+clean = 21,22,25,28,34,36:6,13,25,35
+spclean = 21,22,25,28,31,34,36:3,6,10,12,13,14,15,17,21,23,24,25,27,29,30,31,33,35,36,37,41,44
+conditions = WT,Snf2</pre>
+</div>
+</div>
+<div class="section" id="exclude-badreps-lst">
+<span id="exclude-badreps-lst-configfile"></span><h1>exclude_badreps.lst<a class="headerlink" href="#exclude-badreps-lst" title="Permalink to this headline">¶</a></h1>
+<p>List of replicate filenames (one per line) to be excluded from bootstrapping
+runs by <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>.</p>
+</div>
+<div class="section" id="genlist-tsv">
+<span id="genlist-configfile"></span><h1>genlist.tsv<a class="headerlink" href="#genlist-tsv" title="Permalink to this headline">¶</a></h1>
+<p>Simple text file listing (one per line) the SGD gene names for Saccharomyces
+cerevisiae.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">General scripts and files</a></li>
+<li><a class="reference internal" href="#combine-replicates-pl">combine_replicates.pl</a></li>
+<li><a class="reference internal" href="#de-tests-txt">de_tests.txt</a></li>
+<li><a class="reference internal" href="#de-tests-samecond-txt">de_tests_samecond.txt</a></li>
+<li><a class="reference internal" href="#defs-dat">defs.dat</a></li>
+<li><a class="reference internal" href="#exclude-badreps-lst">exclude_badreps.lst</a></li>
+<li><a class="reference internal" href="#genlist-tsv">genlist.tsv</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/general.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

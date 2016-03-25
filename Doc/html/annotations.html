@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Annotations &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="annotations">
+<span id="id1"></span><h1>Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h1>
+<p>The annotations used to interpret the RNA-seq data for the project. Includes
+the ensembl release 68 annotations for Saccharomyces
+cerevisiae and details of the ERCC artificial spike-in Mix kit from
+<a class="reference external" href="https://www.thermofisher.com/order/catalog/product/4456740">ThermoFisher</a>.</p>
+<div class="section" id="ercc-controls-analysis-txt">
+<span id="ercc-controls-analysis-tsvdoc"></span><h2>ERCC_Controls_Analysis.txt<a class="headerlink" href="#ercc-controls-analysis-txt" title="Permalink to this headline">¶</a></h2>
+<p>Details of the 92 ERCC spike-in analysis values, including the concentrations
+of each spike-in in each mix.</p>
+</div>
+<div class="section" id="ercc-controls-annotation-txt">
+<span id="ercc-controls-annotation-tsvdoc"></span><h2>ERCC_Controls_Annotation.txt<a class="headerlink" href="#ercc-controls-annotation-txt" title="Permalink to this headline">¶</a></h2>
+<p>Details of the 92 ERCC spike-ins, including ID, Genbank accessions and their
+sequence.</p>
+</div>
+<div class="section" id="ercc92-gtf">
+<span id="ercc92-tsvdoc"></span><h2>ERCC92.gtf<a class="headerlink" href="#ercc92-gtf" title="Permalink to this headline">¶</a></h2>
+<p>Annotation information for the 92 ERCC spike-ins. (<a class="reference external" href="http://www.ensembl.org/info/website/upload/gff.html">gtf format</a>)</p>
+</div>
+<div class="section" id="get-gene-info-pl">
+<span id="get-gene-info-perldoc"></span><h2>get_gene_info.pl<a class="headerlink" href="#get-gene-info-pl" title="Permalink to this headline">¶</a></h2>
+<p>Get gene descriptions from Ensembl and store them in a tab-separated output file with three columns: gene id, gene name and description. The default name of the output file is C&lt;gene_descriptions.tsv&gt; in the current directory.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">get_gene_info</span> <span class="o">-</span><span class="n">genlist</span><span class="o">=</span><span class="n">WT_raw</span><span class="o">.</span><span class="n">tsv</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - Gene list, where first column contains gene names. Other columns are ignored. (default: <cite>WT_raw.tsv</cite>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="rna-sample-details-tsv">
+<span id="rna-sample-details-tsvdoc"></span><h2>RNA_sample_details.tsv<a class="headerlink" href="#rna-sample-details-tsv" title="Permalink to this headline">¶</a></h2>
+<p>Details of the RNA samples used for the experiment. Includes Sample IDs,
+Saccharomyces cerevisiae strain, concentrations and RNA QC measurements</p>
+</div>
+<div class="section" id="saccharomyces-cerevisiae-with-spike-ins-ef4-68-gtf">
+<span id="saccharomyces-cerevisiae-with-spike-ins-tsvdoc"></span><h2>Saccharomyces_cerevisiae_with_spike_ins.EF4.68.gtf<a class="headerlink" href="#saccharomyces-cerevisiae-with-spike-ins-ef4-68-gtf" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://www.ensembl.org/index.html">Ensembl</a> release 68 Saccharomyces
+cerevisiae annotations with the 92 ERCC artificial spike-ins included
+(<a class="reference external" href="http://www.ensembl.org/info/website/upload/gff.html">gtf format</a>)</p>
+</div>
+<div class="section" id="saccharomyces-cerevisiae-ef4-68-gtf">
+<span id="saccharomyces-cerevisiae-tsvdoc"></span><h2>Saccharomyces_cerevisiae.EF4.68.gtf<a class="headerlink" href="#saccharomyces-cerevisiae-ef4-68-gtf" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://www.ensembl.org/index.html">Ensembl</a> release 68 Saccharomyces
+cerevisiae annotations (<a class="reference external" href="http://www.ensembl.org/info/website/upload/gff.html">gtf format</a>)</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Annotations</a><ul>
+<li><a class="reference internal" href="#ercc-controls-analysis-txt">ERCC_Controls_Analysis.txt</a></li>
+<li><a class="reference internal" href="#ercc-controls-annotation-txt">ERCC_Controls_Annotation.txt</a></li>
+<li><a class="reference internal" href="#ercc92-gtf">ERCC92.gtf</a></li>
+<li><a class="reference internal" href="#get-gene-info-pl">get_gene_info.pl</a></li>
+<li><a class="reference internal" href="#rna-sample-details-tsv">RNA_sample_details.tsv</a></li>
+<li><a class="reference internal" href="#saccharomyces-cerevisiae-with-spike-ins-ef4-68-gtf">Saccharomyces_cerevisiae_with_spike_ins.EF4.68.gtf</a></li>
+<li><a class="reference internal" href="#saccharomyces-cerevisiae-ef4-68-gtf">Saccharomyces_cerevisiae.EF4.68.gtf</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/annotations.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+.. spikedata_cluster_comparison_autodocs:
+
+****************************
+spikedata_cluster_comparison
+****************************
+
+.. automodule:: spikedata_cluster_comparison
+
+Functions
+=========
+
+Argument parsing
+----------------
+
+.. autofunction:: parse_required_options
+.. autofunction:: parse_allowed_values
+.. autofunction:: parse_option_type
+
+Program, script and environment logging
+---------------------------------------
+
+.. autofunction:: write_log_header
+
+Experiment structure parsing
+----------------------------
+
+.. autofunction:: getConditions
+
+
+Data Manipulation Functions
+---------------------------
+
+.. autofunction:: getLaneTotalCountNorm
+.. autofunction:: normByLanes
+
+Data Analysis
+-------------
+
+.. autofunction:: pearsonCorr
+.. autofunction:: maxCorr
+.. autofunction:: remAll
+.. autofunction:: runCorrLoop
+.. autofunction:: runAllCorrLoop
+
+Plotting Functions
+------------------
+
+.. autofunction:: get_colors
+.. autofunction:: makeHeatmaps
+.. autofunction:: plotSampleClustering
+.. autofunction:: makeCmatrix
+.. autofunction:: plotCorrelationMatrix
+.. autofunction:: plotComparativeClustering
+.. autofunction:: clusterPlots
+.. autofunction:: finalClustplots
+
+General housekeeping
+--------------------
+
+.. autofunction:: timeAndDateStr
+.. autofunction:: timeStr
+

@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" />
+    <link rel="next" title="Getting Started" href="getting_started.html" />
+    <link rel="prev" title="Package Manifest" href="package_inventory.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="package_inventory.html" title="Package Manifest"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installation">
+<span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>None of the scripts in the <a class="reference internal" href="package_inventory.html#package-inventory"><em>package</em></a> require any
+specific installation script or compilation script to be run. Just uncompress
+them and away you go!</p>
+<p>That said, there are a considerable number of dependencies
+for the full suite of scripts and they have only been tested with the specific
+versions of the various software and <a class="reference internal" href="DEtools.html#detools"><em>DE tools</em></a> listed. In
+addition many of them are optimized (or even require) access to a <a class="reference external" href="http://www.drmaa.org/">DRMAA</a> compatible linux cluster (preferably
+an <a class="reference external" href="http://gridscheduler.sourceforge.net/htmlman/manuals.html">SGE</a>
+cluster, even more preferably the <a class="reference external" href="http://www.lifesci.dundee.ac.uk/services/lsc/services/cluster">University of Dundee, Life Sciences Compute
+Cluster</a>).</p>
+<p>The relevant environment will also need to be set up to allow access to each of
+the installed dependencies. In particular, the environmental variables
+PERL5LIB, PYTHONPATH, and PATH will need to be set correctly.</p>
+<p><strong>Warning</strong> some of the scripts (particularly the bash shell scripts) may
+contain hard-coded paths that will need to be modified for your install</p>
+<div class="section" id="software-versions">
+<h2>Software Versions<a class="headerlink" href="#software-versions" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://cran.r-project.org/src/base/R-3/R-3.2.2.tar.gz">R v3.2.2</a></li>
+<li>perl <a class="reference external" href="http://dev.perl.org/perl5/news/2008/perl-5.10.1.html">v5.10.1</a> / <a class="reference external" href="http://dev.perl.org/perl5/news/2008/perl-5.8.9.html">v5.8.9</a></li>
+<li><a class="reference external" href="https://www.python.org/download/releases/2.6.6/">python v2.6.6</a></li>
+<li><a class="reference external" href="http://sourceforge.net/projects/samtools/files/samtools/0.1.18/">samtools v1.1.18</a></li>
+<li><a class="reference external" href="http://ccb.jhu.edu/software/tophat/downloads/tophat-2.0.5.Linux_x86_64.tar.gz">TopHat v2.0.5</a></li>
+<li><a class="reference external" href="http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/">BowTie2 v2.0.0-beta7</a></li>
+<li><a class="reference external" href="http://cole-trapnell-lab.github.io/cufflinks/install/">Cufflinks v2.0.2</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="external-package-dependencies">
+<h2>External Package Dependencies<a class="headerlink" href="#external-package-dependencies" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>python<ul>
+<li><a class="reference external" href="http://www.numpy.org/">numpy</a></li>
+<li><a class="reference external" href="http://www.scipy.org/">scipy</a></li>
+<li><a class="reference external" href="http://drmaa-python.github.io/">drmaa</a></li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/pysqlite">pysqlite2</a></li>
+</ul>
+</li>
+<li>perl<ul>
+<li><a class="reference external" href="http://pdl.perl.org/">pdl</a></li>
+<li><a class="reference external" href="http://jul2012.archive.ensembl.org/info/docs/api/api_installation.html">Ensembl release 68 API</a></li>
+<li><a class="reference external" href="http://bioperl.org/DIST/old_releases/bioperl-1.2.3.tar.gz">bioperl v1.2.3</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~mdehoon/Algorithm-Cluster-1.52/perl/Cluster.pm">Algorithm-cluster</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~timb/DBI-1.634/DBI.pm">DBI</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~tharsch/Schedule-DRMAAc-0.81/Schedule_DRMAAc.pod">Schedule-DRMAAc</a></li>
+<li><a class="reference external" href="http://search.cpan.org/dist/Time-HiRes/HiRes.pm">Time-HiRes</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~callahan/Math-CDF-0.1/CDF.pm">Math-CDF</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~pmqs/IO-Compress-2.068/">IO-Compress</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~jdhedden/threads-2.02/lib/threads.pm">Thread</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~nwclark/perl-5.8.8/ext/threads/threads.pm">Threads</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~rjbs/Carp-1.36/lib/Carp.pm">Carp</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~toddr/Exporter-5.72/lib/Exporter.pm">Exporter</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~nwclark/Devel-Size-0.80/lib/Devel/Size.pm">Devel-Size</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~flora/Term-Complete-1.402/lib/Term/Complete.pm">Term-complete</a></li>
+<li><a class="reference external" href="http://search.cpan.org/~muir/Text-Tabs%2BWrap-2013.0523/lib.old/Text/Wrap.pm">Text-Tabs+Wrap</a></li>
+</ul>
+</li>
+<li>R<ul>
+<li><a class="reference external" href="https://cran.r-project.org/web/packages/matrixStats/index.html">matrixStats</a></li>
+<li><a class="reference external" href="https://cran.r-project.org/web/packages/PoissonSeq/index.html">PoissonSeq</a></li>
+<li><a class="reference external" href="https://cran.r-project.org/web/packages/samr/index.html">samr</a></li>
+<li><a class="reference external" href="http://www.bioconductor.org/news/bioc_2_11_release/">Bioconductor v2.11</a></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="dundee-specific-environment-variable-settings-paths">
+<h2>Dundee-specific Environment Variable settings &amp; Paths<a class="headerlink" href="#dundee-specific-environment-variable-settings-paths" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="environmental-variables">
+<h3>Environmental Variables<a class="headerlink" href="#environmental-variables" title="Permalink to this headline">¶</a></h3>
+<p>For <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a> the Dundee-specific
+environmental variables are:</p>
+<div class="highlight-python"><pre>export PYTHONPATH=*pathtocodebase*:/sw/opt/python/2.6.6/lib/python2.6/site-packages:/sw/opt/python/2.6.6/lib64/python2.6/site-packages
+export PERL5LIB=*pathtocodebase*/Modules:/sw/opt/ensembl-api/bioperl-live:/sw/opt/ensembl-api/68/ensembl/modules:/sw/lib/perl5.10.1/lib/perl:/sw/lib/perl5.10.1/lib/perl/x86_64-linux-thread-multi</pre>
+</div>
+<p>For the downstram statisics and plotting scripts the Dundee-specific
+environmental variables are:</p>
+<div class="highlight-python"><pre>export PERL5LIB=*pathtocodebase*/Modules:/homes/mgierlinski/perl/lib/perl5:/sw/perl/5.8.9/lib/perl5:/sw/lib/perl5/site_perl/5.8.9:/sw/lib/perl:/sw/lib/perl5/site_perl/5.8.9/x86_64-linux</pre>
+</div>
+</div>
+<div class="section" id="paths">
+<h3>Paths<a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h3>
+<p>These are specific paths that need to be provided to some of the scripts
+(notably <a class="reference internal" href="bootstrapping.html#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>) for our setup.</p>
+<blockquote>
+<div><ul class="simple">
+<li>samtools: /sw/opt/samtools-0.1.18/samtools</li>
+<li>Rscript: /sw/opt/R/3.2.2/bin/Rscript</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#software-versions">Software Versions</a></li>
+<li><a class="reference internal" href="#external-package-dependencies">External Package Dependencies</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#dundee-specific-environment-variable-settings-paths">Dundee-specific Environment Variable settings &amp; Paths</a><ul>
+<li><a class="reference internal" href="#environmental-variables">Environmental Variables</a></li>
+<li><a class="reference internal" href="#paths">Paths</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="package_inventory.html"
+                        title="previous chapter">Package Manifest</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="getting_started.html"
+                        title="next chapter">Getting Started</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/install.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="package_inventory.html" title="Package Manifest"
+             >previous</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

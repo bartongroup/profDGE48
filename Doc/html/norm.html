@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Normalising the data &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="normalising-the-data">
+<span id="normalisation"></span><h1>Normalising the data<a class="headerlink" href="#normalising-the-data" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="levelling-lanes-pl">
+<span id="levelling-lanes-perldoc"></span><h1>levelling_lanes.pl<a class="headerlink" href="#levelling-lanes-pl" title="Permalink to this headline">¶</a></h1>
+<p>Equal count (levelling) normalization of fastq files for lanes. Uses the
+grid engine.</p>
+<blockquote>
+<div>levelling_lanes.pl -levdir <em>path</em></div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-levdir</cite> - Directory for levelled data.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-logdir</cite> - Directory for log files.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-script</cite> - Path and name of the script <a class="reference internal" href="#one-levelling-perldoc"><em>one_levelling.pl</em></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-queue</cite> - Cluster queue name(s), comma delimited.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="levelling-pl">
+<span id="levelling-perldoc"></span><h1>levelling.pl<a class="headerlink" href="#levelling-pl" title="Permalink to this headline">¶</a></h1>
+<p>Equal count (levelling) normalization of fastq files. No options other than
+those predefined in <em>defs.dat</em> so just run it. Read count files have to be
+prepared in advance using <a class="reference internal" href="mapping.html#count-fastq-reads-perldoc"><em>count_fastq_reads.pl</em></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="norms-pl">
+<span id="norms-perldoc"></span><h1>norms.pl<a class="headerlink" href="#norms-pl" title="Permalink to this headline">¶</a></h1>
+<p>Compares various normalization methods. Also, creates files with normalizing
+factors that are used by <em class="xref std std-ref">plot_gene_pileup.pl</em> and
+other scripts. There are no options.</p>
+</div>
+<div class="section" id="one-levelling-pl">
+<span id="one-levelling-perldoc"></span><h1>one_levelling.pl<a class="headerlink" href="#one-levelling-pl" title="Permalink to this headline">¶</a></h1>
+<p>Script used by <a class="reference internal" href="#levelling-lanes-perldoc"><em>levelling_lanes.pl</em></a>. Not to be
+run on its own.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-infile</cite> - Input file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Output file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-count</cite> - Number of read counts.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-min</cite> - Target number of reads.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Normalising the data</a></li>
+<li><a class="reference internal" href="#levelling-lanes-pl">levelling_lanes.pl</a></li>
+<li><a class="reference internal" href="#levelling-pl">levelling.pl</a></li>
+<li><a class="reference internal" href="#norms-pl">norms.pl</a></li>
+<li><a class="reference internal" href="#one-levelling-pl">one_levelling.pl</a><ul>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/norm.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

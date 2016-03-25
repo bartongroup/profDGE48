@@ -1,0 +1,11 @@
+.. bootstrapping_autodocs:
+.. _bootstrapping_autodocs:
+
+***********************************
+Scripts for bootstrapping DGE calls
+************************************
+
+..	toctree::
+	:maxdepth: 1
+
+	generic_wrapper_autodocs

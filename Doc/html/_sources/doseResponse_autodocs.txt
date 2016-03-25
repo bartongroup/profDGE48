@@ -1,0 +1,52 @@
+.. doseResponse_autodocs:
+
+************
+doseResponse
+************
+
+.. automodule:: doseResponse
+
+Functions
+=========
+
+Argument parsing
+----------------
+
+.. autofunction:: parse_required_options
+.. autofunction:: parse_allowed_values
+.. autofunction:: parse_option_type
+
+Program, script and environment logging
+---------------------------------------
+
+.. autofunction:: write_log_header
+
+Experiment structure parsing
+----------------------------
+
+.. autofunction:: getConditions
+.. autofunction:: get_conditionInfo
+
+Data Fitting
+------------
+
+.. autofunction:: linear_chisq
+.. autofunction:: power_chisq
+.. autofunction:: fitDataLinear
+.. autofunction:: fitModels
+.. autofunction:: calcLinearFitNorms
+
+Plotting Functions
+------------------
+
+.. autofunction:: get_colors
+.. autofunction:: makeDosePlot
+
+General housekeeping
+--------------------
+
+.. autofunction:: timeAndDateStr
+.. autofunction:: timeStr
+.. autofunction:: niceFormattedErrstr
+
+

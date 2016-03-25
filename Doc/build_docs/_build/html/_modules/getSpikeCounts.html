@@ -1,0 +1,1105 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>getSpikeCounts &mdash; GRNASeq 1.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GRNASeq 1.9 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">GRNASeq 1.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for getSpikeCounts</h1><div class="highlight"><pre>
+<span class="c">#!/local/bin/python</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">----------------</span>
+<span class="sd">getSpikeCounts.py</span>
+
+<span class="sd">Gets the spike-in read counts from the output tsv files from pre-run</span>
+<span class="sd">group_by_gene.pl instances. These instances use the appropriate .gtf file for</span>
+<span class="sd">the spike-ins to get the spike in read counts. Aggregates this with information</span>
+<span class="sd">on the spike-ins directly to a pkl for use with downstream scripts.</span>
+
+<span class="sd">Note: The &#39;analysis&#39; file and the &#39;annotation&#39; file are the respective files</span>
+<span class="sd">provided for download by the spike-in manufacturers and should be called</span>
+<span class="sd">something like &quot;ERCC_Controls_Annotation.txt&quot; and &quot;ERCC_Controls_Analysis.txt&quot;.</span>
+
+<span class="sd">.. moduleauthor:: Nick Schurch &lt;nschurch@dundee.ac.uk&gt;</span>
+
+<span class="sd">Command-line Arguments</span>
+<span class="sd">======================</span>
+
+<span class="sd">**usage\:** </span>
+<span class="sd">    getSpikeCounts.py </span>
+<span class="sd">    :option:`-a|--annotfile` *&lt;file&gt;*</span>
+<span class="sd">    :option:`-b|--batchfile` *&lt;file&gt;*</span>
+<span class="sd">    :option:`-c|--analyfile` *&lt;file&gt;*</span>
+<span class="sd">    :option:`-d|--datapath` *&lt;path&gt;*      </span>
+<span class="sd">    :option:`-o|--outfile` *&lt;file&gt;* </span>
+<span class="sd">    :option:`-l|--logfile` *&lt;file&gt;* </span>
+<span class="sd">    [:option:`--fileext *&lt;str&gt;*`] </span>
+<span class="sd">    [:option:`-v|--verbose`] </span>
+<span class="sd">    [:option:`--version`] </span>
+<span class="sd">    [:option:`--help`]</span>
+
+<span class="sd">Required Parameters</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">:option:`--annotfile|-a`</span>
+
+<span class="sd">  Path to the annotation file for the spike-ins (see Note above). Should looks</span>
+<span class="sd">  something like this</span>
+<span class="sd">  http://tools.invitrogen.com/content/sfs/manuals/cms_095047.txt</span>
+
+<span class="sd">:option:`--batchfile|-b`</span>
+
+<span class="sd">  Path to the batch-file for the spike-ins. This file is a tsv file that relates</span>
+<span class="sd">  the random ID of the sequence sample to the non-random sample ID and includes</span>
+<span class="sd">  a description of the batch and mix of spike in added to each sample. Should be</span>
+<span class="sd">  provided by the sequencing center.</span>
+
+<span class="sd">:option:`--analyfile|-c`</span>
+
+<span class="sd">  Path to the analysis file for the spike-ins (see Note above). Should looks</span>
+<span class="sd">  something like this</span>
+<span class="sd">  http://tools.invitrogen.com/content/sfs/manuals/cms_095046.txt</span>
+
+<span class="sd">:option:`--datapath|-d`          </span>
+
+<span class="sd">  Path to the data directory of the experiment. All files with an extension that</span>
+<span class="sd">  matches --fileext will be read and parsed.</span>
+
+<span class="sd">:option:`--outfile|-o`           </span>
+
+<span class="sd">  The name (inc. path) of the output file from the wrapper.</span>
+
+<span class="sd">:option:`--logfile|-l`        </span>
+
+<span class="sd">  The name (inc. path) of the log file from the wrapper.</span>
+
+<span class="sd">Other options</span>
+<span class="sd">-------------</span>
+
+<span class="sd">:option:`--fileext`</span>
+
+<span class="sd">  The extension of the files to read. Defaults to &#39;.tsv&#39;.</span>
+
+<span class="sd">:option:`--help|-h`</span>
+
+<span class="sd">  Print a basic description of the tool and its options to STDOUT.</span>
+
+<span class="sd">:option:`--version`    </span>
+
+<span class="sd">  Show program&#39;s version number and exit.</span>
+<span class="sd">    </span>
+<span class="sd">:option:`--verbose|-v`     </span>
+
+<span class="sd">  Turn on verbose logging (recommended).</span>
+
+
+<span class="sd">Output</span>
+<span class="sd">======</span>
+
+<span class="sd">A pkl (python data structure that uses the cPickle library to read python</span>
+<span class="sd">objects directly) containing a dictionary keyed on the spike in name with</span>
+<span class="sd">details of the spike in and the relevant read-counts.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># IF YOU ADD AN IMPORT HERE, MAKE SURE YOU ADD IT TO THE &#39;imported_modules&#39;</span>
+<span class="c">#LIST OR IT WON&#39;T GET INCLUDED IN VERBOSE LOGGING OUTPUT!</span>
+<span class="n">imported_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;os&quot;</span><span class="p">,</span> <span class="s">&quot;sys&quot;</span><span class="p">,</span> <span class="s">&quot;re&quot;</span><span class="p">,</span> <span class="s">&quot;time&quot;</span><span class="p">,</span> <span class="s">&quot;warnings&quot;</span><span class="p">,</span> <span class="s">&quot;cPickle&quot;</span><span class="p">,</span> 
+                    <span class="s">&quot;numpy&quot;</span><span class="p">,</span> <span class="s">&quot;optparse&quot;</span><span class="p">,</span> <span class="s">&quot;subprocess&quot;</span><span class="p">]</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">os.path</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">warnings</span><span class="o">,</span> <span class="nn">cPickle</span><span class="o">,</span> <span class="nn">numpy</span><span class="o">,</span> <span class="nn">optparse</span>
+    <span class="kn">import</span> <span class="nn">subprocess</span>
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span><span class="p">,</span> <span class="n">OptionGroup</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Something went wrong when importing the required modules. Its &quot;</span> \
+          <span class="s">&quot;probably something to do with you not having the right bits in &quot;</span> \
+          <span class="s">&quot;your python path.</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;If you&#39;re in Dundee, make sure you have &quot;</span> \
+          <span class="s">&quot;/sw/lib/python2.6/site-packages in your pythonpath. Otherwise, &quot;</span> \
+          <span class="s">&quot;please make sure your pythonpath includes locations&quot;</span> \
+          <span class="s">&quot;for the following modules:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">imported_modules</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Your pythonpath is:&quot;</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">!=</span><span class="s">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+    <span class="k">raise</span>              
+
+<span class="n">version_string</span><span class="o">=</span><span class="s">&quot;2.1&quot;</span>
+
+<span class="c"># force sequential output to the screen, rather than buffered output.</span>
+
+<span class="k">def</span> <span class="nf">printf</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">args</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fdopen</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c"># patch warnings module to print the warning message format I like</span>
+
+<span class="k">def</span> <span class="nf">custom_formatwarning</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+    <span class="n">warn_type</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;.+\.(.+)</span><span class="se">\&#39;</span><span class="s">\&gt;&quot;</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">category</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">---</span><span class="se">\n</span><span class="si">%s</span><span class="s">, line </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\n</span><span class="s">---</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">warn_type</span><span class="p">,</span> 
+                                                 <span class="n">message</span>
+                                                 <span class="p">)</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">custom_formatwarning</span>
+
+<div class="viewcode-block" id="parse_required_options"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.parse_required_options">[docs]</a><span class="k">def</span> <span class="nf">parse_required_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot; Checks that all required options have been specified </span>
+<span class="sd">    </span>
+<span class="sd">    options is an optparse options instance, optslist is a list of options, </span>
+<span class="sd">    each of which is a dictionary with the &#39;group&#39; key. If &#39;group&#39;==&#39;required&#39; </span>
+<span class="sd">    then its a required option. If the value of this option in the optparse</span>
+<span class="sd">    instance is not specified, then exit the script and provide help.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">optslist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;group&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;required&quot;</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+                     <span class="s">&quot;A required argument (</span><span class="si">%s</span><span class="s">) is missing.</span><span class="se">\n</span><span class="s">Please specify &quot;</span> \
+                     <span class="s">&quot; a value using &#39;</span><span class="si">%s</span><span class="s"> arg&#39;|&#39;</span><span class="si">%s</span><span class="s">=arg&#39; or see -h|--help for &quot;</span> \
+                     <span class="s">&quot; more details on how to run this script.&quot;</span> 
+                     <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span> 
+                        <span class="n">val</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">],</span>
+                        <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">])</span>
+                    <span class="p">)</span>
+</div>
+<div class="viewcode-block" id="parse_allowed_values"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.parse_allowed_values">[docs]</a><span class="k">def</span> <span class="nf">parse_allowed_values</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot; Checks that all options conform to their allowed values </span>
+<span class="sd">    </span>
+<span class="sd">    options is an optparse options instance, optslist is a list of options, </span>
+<span class="sd">    each of which is a dictionary with an optional &#39;allowed_vals&#39; key. </span>
+<span class="sd">    &#39;allowed_vals&#39; should contain a list of the allowed values. If the </span>
+<span class="sd">    value of this option in the optparse instance is not in this list</span>
+<span class="sd">    then warn the user and use the default value.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">optslist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&quot;allowed_vals&quot;</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;allowed_vals&quot;</span><span class="p">]:</span>
+                <span class="n">warnstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> is not an allowed option for </span><span class="si">%s</span><span class="s">. &quot;</span> \
+                             <span class="s">&quot;Defaulting to </span><span class="si">%s</span><span class="s">. See -h|--help for more &quot;</span> \
+                             <span class="s">&quot;details on how to run this script.&quot;</span> \
+                             <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]],</span>
+                                   <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span>
+                                   <span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+                <span class="n">warning</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warnstring</span><span class="p">,</span> <span class="ne">SyntaxWarning</span><span class="p">)</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="parse_option_type"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.parse_option_type">[docs]</a><span class="k">def</span> <span class="nf">parse_option_type</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot; Checks that all options conform to their specified types </span>
+<span class="sd">    </span>
+<span class="sd">    options is an optparse options instance, optslist is a list of options, </span>
+<span class="sd">    each of which is a dictionary with an optional &#39;opt_type&#39; key. </span>
+<span class="sd">    &#39;opt_type&#39; should be a string specifying the type of the option; examples</span>
+<span class="sd">    are input_path, output_path, output_file, string, int, float. all the </span>
+<span class="sd">    &#39;opt_type&#39; values should be valid python types except the paths. If the </span>
+<span class="sd">    value of this option in the optparse instance is not of this type then </span>
+<span class="sd">    either warn the user and use the default value (if there is one) or exit </span>
+<span class="sd">    the script and provide help.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">optslist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&quot;opt_type&quot;</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            
+            <span class="c"># check all paths to make sure they are valid paths</span>
+            <span class="c"># paths are all essential so exit if they fail</span>
+            <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;opt_type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;input_path&quot;</span><span class="p">,</span> <span class="s">&quot;output_path&quot;</span><span class="p">,</span> <span class="s">&quot;output_file&quot;</span><span class="p">]:</span>
+
+                <span class="c">#resolve relative paths</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^$&quot;</span><span class="p">,</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]):</span>
+                    <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+                
+                <span class="n">dictpath</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dictpath</span><span class="p">)</span>
+                
+                <span class="c"># trim output file name from path</span>
+                <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;opt_type&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;output_file&quot;</span><span class="p">:</span>  
+                    <span class="n">check_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">check_path</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span>
+                
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^$&quot;</span><span class="p">,</span><span class="n">check_path</span><span class="p">):</span>
+                    <span class="n">check_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">check_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]</span><span class="o">!=</span><span class="s">&quot;tmpdir&quot;</span><span class="p">:</span>
+                    <span class="c"># make any necessary paths. Deal with tmpdir seperately!</span>
+                    <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;opt_type&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;output_path&quot;</span><span class="p">:</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">check_path</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+                             <span class="s">&quot;The path specified for </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">, is not valid.</span><span class="se">\n</span><span class="s">&quot;</span> \
+                             <span class="s">&quot;Please specify a valid path. See -h|--help &quot;</span> \
+                             <span class="s">&quot;for more details on how to run this script.&quot;</span> 
+                             <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span>
+                                <span class="n">check_path</span><span class="p">)</span>
+                             <span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;opt_type&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;input_file&quot;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c">#resolve relative paths</span>
+                    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^$&quot;</span><span class="p">,</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]):</span>
+                        <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+                    
+                    <span class="n">dictpath</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span>
+                    <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dictpath</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]):</span>
+                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+                                 <span class="s">&quot;The path specified for </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">, is not &quot;</span> \
+                                 <span class="s">&quot;valid.</span><span class="se">\n</span><span class="s">Please specify a valid path. See &quot;</span> \
+                                 <span class="s">&quot;-h|--help for more details on how to run &quot;</span> \
+                                 <span class="s">&quot;this script.&quot;</span> 
+                                 <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span>
+                                    <span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">])</span>
+                                 <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">print</span> <span class="n">e</span>
+                        <span class="k">raise</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;opt_type&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;string&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]])</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                            <span class="n">warnstring</span> <span class="o">=</span> <span class="s">&quot;The value specified for </span><span class="si">%s</span><span class="s"> cannot &quot;</span> \
+                                         <span class="s">&quot;be successfully cast as a string. &quot;</span> \
+                                         <span class="s">&quot;Defaulting to </span><span class="si">%s</span><span class="s">. See -h|--help &quot;</span> \
+                                         <span class="s">&quot;for more details on how to run &quot;</span> \
+                                         <span class="s">&quot;this script.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span>
+                                                           <span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span>
+                                                           <span class="p">)</span>
+                            <span class="n">warning</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warnstring</span><span class="p">,</span> <span class="ne">SyntaxWarning</span><span class="p">)</span>
+                            <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;The value specified for </span><span class="si">%s</span><span class="s"> cannot be &quot;</span> \
+                                     <span class="s">&quot;successfully cast as a string and has &quot;</span> \
+                                     <span class="s">&quot;no default value. please specify a &quot;</span> \
+                                     <span class="s">&quot;valid value. See -h|--help for more &quot;</span> \
+                                     <span class="s">&quot;details on how to run this script.&quot;</span> \
+                                     <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">]</span>
+                                     <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;opt_type&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;int&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]])</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                            <span class="n">warnstring</span> <span class="o">=</span> <span class="s">&quot;The value specified for </span><span class="si">%s</span><span class="s"> cannot &quot;</span> \
+                                         <span class="s">&quot;be successfully cast as a int. &quot;</span> \
+                                         <span class="s">&quot;Defaulting to </span><span class="si">%s</span><span class="s">. See -h|--help &quot;</span> \
+                                         <span class="s">&quot;for more details on how to run &quot;</span> \
+                                         <span class="s">&quot;this script.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span>
+                                                           <span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+                            <span class="n">warning</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warnstring</span><span class="p">,</span> <span class="ne">SyntaxWarning</span><span class="p">)</span>
+                            <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;The value specified for </span><span class="si">%s</span><span class="s"> cannot be &quot;</span> \
+                                     <span class="s">&quot;successfully cast as a int and has &quot;</span> \
+                                     <span class="s">&quot;no default value. please specify a &quot;</span> \
+                                     <span class="s">&quot;valid value. See -h|--help for more &quot;</span> \
+                                     <span class="s">&quot;details on how to run this script.&quot;</span> \
+                                     <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">]</span>
+                                     <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;opt_type&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;float&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]])</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                            <span class="n">warnstring</span> <span class="o">=</span> <span class="s">&quot;The value specified for </span><span class="si">%s</span><span class="s"> cannot &quot;</span> \
+                                         <span class="s">&quot;be successfully cast as a float. &quot;</span> \
+                                         <span class="s">&quot;Defaulting to </span><span class="si">%s</span><span class="s">. See -h|--help &quot;</span> \
+                                         <span class="s">&quot;for more details on how to run &quot;</span> \
+                                         <span class="s">&quot;this script.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span>
+                                                           <span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+                            <span class="n">warning</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warnstring</span><span class="p">,</span> <span class="ne">SyntaxWarning</span><span class="p">)</span>
+                            <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]]</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;The value specified for </span><span class="si">%s</span><span class="s"> cannot be &quot;</span> \
+                                     <span class="s">&quot;successfully cast as a float and has &quot;</span> \
+                                     <span class="s">&quot;no default value. please specify a &quot;</span> \
+                                     <span class="s">&quot;valid value. See -h|--help for more &quot;</span> \
+                                     <span class="s">&quot;details on how to run this script.&quot;</span> \
+                                     <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">]</span>
+                                     <span class="p">)</span>
+    
+    <span class="k">return</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>    
+</div>
+<div class="viewcode-block" id="timeAndDateStr"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.timeAndDateStr">[docs]</a><span class="k">def</span> <span class="nf">timeAndDateStr</span><span class="p">(</span><span class="n">ttime</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    pretty current time and date timestring</span>
+<span class="sd">    </span>
+<span class="sd">    Uses current time unless an epoch time is provided</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">ttime</span> <span class="o">==</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">ttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">ttime</span><span class="p">)</span>
+    <span class="n">timestring</span> <span class="o">=</span>  <span class="s">&quot;</span><span class="si">%02.0d</span><span class="s">:</span><span class="si">%02.0d</span><span class="s"> </span><span class="si">%02.0d</span><span class="s">/</span><span class="si">%02.0d</span><span class="s">/</span><span class="si">%02.0d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ttime</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> 
+                                                          <span class="n">ttime</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> 
+                                                          <span class="n">ttime</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> 
+                                                          <span class="n">ttime</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> 
+                                                          <span class="n">ttime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">timestring</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="timeStr"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.timeStr">[docs]</a><span class="k">def</span> <span class="nf">timeStr</span><span class="p">(</span><span class="n">ttime</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    pretty current time timestring</span>
+
+<span class="sd">    Uses current time unless an epoch time is provided</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">ttime</span> <span class="o">==</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">ttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">ttime</span><span class="p">)</span>
+    <span class="n">timestring</span> <span class="o">=</span>  <span class="s">&quot;</span><span class="si">%02.0d</span><span class="s">:</span><span class="si">%02.0d</span><span class="s">:</span><span class="si">%02.0d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ttime</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">ttime</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="n">ttime</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">timestring</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="write_log_header"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.write_log_header">[docs]</a><span class="k">def</span> <span class="nf">write_log_header</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">,</span> 
+                     <span class="n">env_path_list</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;PYTHONPATH&quot;</span><span class="p">,</span> <span class="s">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">,</span> <span class="s">&quot;PATH&quot;</span><span class="p">]</span>
+                     <span class="p">):</span>
+    
+    <span class="c"># open log</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c"># get script name</span>
+    <span class="n">script_title</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> v</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;^.+\/&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">version_string</span><span class="p">)</span>
+    <span class="n">title_lines</span> <span class="o">=</span> <span class="s">&quot;=&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">script_title</span><span class="p">)</span>
+    
+    <span class="c"># write the title and log time</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot; </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot; </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot; </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot; Logfile opened at </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> \
+              <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">title_lines</span><span class="p">,</span> <span class="n">script_title</span><span class="p">,</span> <span class="n">title_lines</span><span class="p">,</span> <span class="n">timeAndDateStr</span><span class="p">())</span>              
+              <span class="p">)</span>
+    
+    <span class="c"># write the full command line</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; Command line:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">))</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; Full script options:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">optslist</span><span class="p">:</span>
+        <span class="n">opt_printstr</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">:&quot;</span> <span class="o">%</span> <span class="n">option</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">]</span>
+        <span class="n">optstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\t</span><span class="si">%s%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opt_printstr</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="p">),</span> 
+                                <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">option</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">]])</span>
+        <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="ow">and</span> <span class="n">option</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+            <span class="n">optstring</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> (default)&quot;</span> <span class="o">%</span> <span class="n">optstring</span>
+        
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">optstring</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                
+        <span class="c"># list details of python and group_by_gene.pl</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> Programs:</span><span class="se">\n</span><span class="s">&quot;</span>\
+                  <span class="s">&quot;</span><span class="se">\t</span><span class="s">Python </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+                  <span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># get version info from &#39;group_by_gene.pl&#39;</span>
+            <span class="n">gbg_call</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">perlpath</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">gbgpath</span><span class="p">,</span> 
+                                         <span class="s">&quot;--version&quot;</span><span class="p">],</span> 
+                                        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">gbg_version_info</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gbg_call</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">gbg_version</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">other_versions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">gbg_version_info</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;.*group_by_gene.pl&quot;</span><span class="p">,</span><span class="n">info</span><span class="p">):</span>
+                    <span class="n">gbg_version</span> <span class="o">=</span> <span class="n">info</span>
+                <span class="k">elif</span> <span class="n">info</span><span class="o">!=</span><span class="s">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">other_versions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+            
+            <span class="n">gbg_version_string</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\n\t\t</span><span class="s">(uses </span><span class="si">%s</span><span class="s">)&quot;</span> \
+                                 <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">gbg_version</span><span class="p">,</span><span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">other_versions</span><span class="p">))</span>
+            
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">gbg_version_string</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># get version info from &#39;add_gene_name_column.pl&#39;</span>
+            <span class="n">agnc_call</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">perlpath</span><span class="p">,</span>
+                                          <span class="n">options</span><span class="o">.</span><span class="n">agncpath</span><span class="p">,</span> <span class="s">&quot;--version&quot;</span><span class="p">],</span> 
+                                        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">agnc_version_info</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">agnc_call</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">agnc_version</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">ensembl_version</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">agnc_version_info</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;.*add_gene_name_column.pl&quot;</span><span class="p">,</span><span class="n">info</span><span class="p">):</span>
+                    <span class="n">agnc_version</span> <span class="o">=</span> <span class="n">info</span>
+                <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;ensembl API&quot;</span><span class="p">,</span><span class="n">info</span><span class="p">):</span>
+                    <span class="n">ensembl_version</span> <span class="o">=</span> <span class="n">info</span>
+            
+            <span class="n">agnc_version_string</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\n\t\t</span><span class="s">(uses </span><span class="si">%s</span><span class="s">)&quot;</span> \
+                                 <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">agnc_version</span><span class="p">,</span> <span class="n">ensembl_version</span><span class="p">)</span>
+            
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">agnc_version_string</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># get version info from &#39;samtools&#39;</span>
+            <span class="n">samtools_call</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">samtoolspath</span><span class="p">],</span> 
+                                        <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">samtool_string</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="n">samtools_call</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">samtools_version_info</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;.+Version: (.+?)Usage:.+&quot;</span><span class="p">,</span>
+                                             <span class="n">samtool_string</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        
+            <span class="n">samtools_version_string</span> <span class="o">=</span> <span class="s">&quot;samtools </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">samtools_version_info</span><span class="p">)</span>
+            
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">samtools_version_string</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># get version info from &#39;R&#39;</span>
+            <span class="n">R_call</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">rpath</span><span class="p">,</span> <span class="s">&quot;--version&quot;</span><span class="p">],</span> 
+                                      <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                      <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">R_response</span> <span class="o">=</span> <span class="n">R_call</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">R_response</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="s">&quot;&quot;</span><span class="p">:</span>
+                <span class="c"># if its the R binary it will use this</span>
+                <span class="n">R_string</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">R_response</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">R_version_string</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot; -- &quot;</span><span class="p">,</span> <span class="n">R_string</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># if its the RScript binary it will use this</span>
+                <span class="n">R_version_string</span> <span class="o">=</span> <span class="n">R_response</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            
+            <span class="n">R_version_string</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;^R&quot;</span><span class="p">,</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">rpath</span><span class="p">,</span>
+                                      <span class="n">R_version_string</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">R_version_string</span><span class="p">)</span>
+                
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;***Cannot get R version! Something may be wrong.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># get version info from &#39;perl&#39;</span>
+            <span class="n">perl_call</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">perlpath</span><span class="p">,</span> <span class="s">&quot;--version&quot;</span><span class="p">],</span> 
+                                      <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                      <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">perl_response</span> <span class="o">=</span> <span class="n">perl_call</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="n">perl_version_info</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">perl_response</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">perl_version_string</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">perl_version_info</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;This is perl.+\((.+?)\) built.+&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="n">perl_version_string</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            
+            <span class="n">perl_version_string</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">perlpath</span><span class="p">,</span> 
+                                             <span class="n">perl_version_string</span><span class="p">)</span> 
+            
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">perl_version_string</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;***Cannot get perl version! Something may be wrong.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">RScript_call</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">rpath</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">script_file</span><span class="p">,</span> 
+                                       <span class="s">&quot;--version&quot;</span><span class="p">],</span> 
+                                      <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                      <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+                                      <span class="p">)</span>
+            
+            <span class="n">RScript_response</span> <span class="o">=</span> <span class="n">RScript_call</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="c"># The info should be here</span>
+            <span class="n">RScript_version_info</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">RScript_response</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">skip</span><span class="o">=</span><span class="bp">True</span>
+            <span class="n">script_version</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">otherinfo</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">RScript_version_info</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">script_file</span><span class="p">),</span>
+                                 <span class="n">info</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">skip</span><span class="p">:</span>
+                    <span class="n">skip</span><span class="o">=</span><span class="bp">False</span>
+                    <span class="n">script_version</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="s">&quot; v&quot;</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">skip</span> <span class="ow">and</span> <span class="n">info</span><span class="o">!=</span><span class="s">&quot;&quot;</span><span class="p">:</span>                
+                    <span class="n">otherinfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="s">&quot; v&quot;</span><span class="p">,</span> <span class="n">info</span><span class="p">))</span>
+            
+            <span class="n">script_version</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;^R&quot;</span><span class="p">,</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">rpath</span><span class="p">,</span> <span class="n">script_version</span><span class="p">)</span>
+            <span class="n">script_version</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;version&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">script_version</span><span class="p">)</span>
+            
+            <span class="n">R_version_string</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\n\t\t</span><span class="s">(uses </span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">script_version</span><span class="p">,</span>
+                                                      <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">otherinfo</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">R_version_string</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Could not get </span><span class="si">%s</span><span class="s"> script varsion info&quot;</span> \
+                      <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">script_file</span><span class="p">)))</span>
+
+        <span class="c"># munge module information</span>
+        <span class="n">standard_modules</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">third_party_modules</span> <span class="o">=</span> <span class="p">[]</span> 
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">imported_modules</span><span class="p">:</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="s">&quot;module_version = </span><span class="si">%s</span><span class="s">.__version__&quot;</span> <span class="o">%</span> <span class="n">module</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">exec</span> <span class="n">code</span>
+                <span class="n">third_party_modules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_version</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">standard_modules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+        
+        <span class="c"># describe standard imports</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> Standard python modules:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">standard_modules</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">module</span><span class="p">)</span>
+        
+        <span class="c"># describe third party python modules</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> Contributed python modules:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">third_party_modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;pysam&quot;</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> (uses samtools </span><span class="si">%s</span><span class="s">)&quot;</span> \
+                         <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">pysam</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">__samtools_version__</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">module</span><span class="p">)</span>
+        
+        <span class="c"># print relevent environment variables</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">env_path_list</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">evar</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">val</span><span class="p">])</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s"> environment variable:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">evar</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">!=</span><span class="s">&quot;&quot;</span><span class="p">:</span>
+                        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s"> environment variable: not set!&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">)</span>
+    
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="readSpikeAnnotations"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.readSpikeAnnotations">[docs]</a><span class="k">def</span> <span class="nf">readSpikeAnnotations</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39; read the spike-in annotations file</span>
+<span class="sd">    </span>
+<span class="sd">    This should be a tab-separated text file with columns:</span>
+<span class="sd">        ERCC_ID, GenBank, 5prime_assay, 3prime_assay &amp; Sequence</span>
+<span class="sd">    </span>
+<span class="sd">    one row per spike-in, with the first line as column headers.&#39;&#39;&#39;</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Reading annotation file </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> 
+                                                        <span class="n">options</span><span class="o">.</span><span class="n">feature_annot</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+    
+    <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">feature_annot</span><span class="p">,</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="n">spike_dic</span><span class="o">=</span><span class="p">{}</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">linedata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">j</span><span class="o">=</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="n">j</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">linedata</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">spike_dic</span><span class="p">[</span><span class="n">linedata</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">=</span><span class="n">linedata</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">spike_dic</span><span class="p">[</span><span class="n">linedata</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">spike_dic</span><span class="p">[</span><span class="n">linedata</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">=</span><span class="n">linedata</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">j</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+    
+    <span class="k">return</span><span class="p">(</span><span class="n">spike_dic</span><span class="p">)</span>        
+</div>
+<div class="viewcode-block" id="readSpikeAnalysis"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.readSpikeAnalysis">[docs]</a><span class="k">def</span> <span class="nf">readSpikeAnalysis</span><span class="p">(</span><span class="n">spike_dic</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39; read the spike-in analysis file</span>
+<span class="sd">    </span>
+<span class="sd">    This should be a tab-separated text file with columns:</span>
+<span class="sd">        Re-sort ID, ERCC ID, subgroup, concentration in Mix 1 (attomoles/ul),</span>
+<span class="sd">        concentration in Mix 2 (attomoles/ul), expected fold-change ratio &amp; </span>
+<span class="sd">        log2(Mix 1/Mix 2)</span>
+<span class="sd">    </span>
+<span class="sd">    one row per spike-in, with the first line as column headers.&#39;&#39;&#39;</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Reading analysis file </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> 
+                                                        <span class="n">options</span><span class="o">.</span><span class="n">feature_analy</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+    
+    <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">feature_analy</span><span class="p">,</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">junk</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">linedata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">spike_id</span> <span class="o">=</span> <span class="n">linedata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">j</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">while</span> <span class="n">j</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">linedata</span><span class="p">):</span>
+            <span class="n">spike_dic</span><span class="p">[</span><span class="n">spike_id</span><span class="p">][</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">=</span><span class="n">linedata</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">j</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+    
+    <span class="k">return</span><span class="p">(</span><span class="n">spike_dic</span><span class="p">)</span>        
+</div>
+<div class="viewcode-block" id="readSpikeCounts"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.readSpikeCounts">[docs]</a><span class="k">def</span> <span class="nf">readSpikeCounts</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39; read the read-count data for the spike ins for a given replicate</span>
+<span class="sd">    </span>
+<span class="sd">    The filename should encode the condition, sample and lane details</span>
+<span class="sd">    in the following way:</span>
+<span class="sd">        &lt;condition&gt;_rep&lt;sample_no&gt;_lane&lt;lane_no&gt;_*</span>
+<span class="sd">    </span>
+<span class="sd">    This should be a tab-separated text file with columns:</span>
+<span class="sd">        ERCC ID, count</span>
+<span class="sd">    </span>
+<span class="sd">    one row per spike-in, no column headers.&#39;&#39;&#39;</span>
+    
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Reading data from file </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> <span class="n">filename</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+    
+    <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^(.+?)_rep([0-9]+)_lane([0-9]+)_.+$&quot;</span><span class="p">,</span> 
+                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        
+    <span class="n">data_dic</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="n">excludelist</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;alignment_not_unique&#39;</span><span class="p">,</span> <span class="s">&#39;ambiguous&#39;</span><span class="p">,</span> <span class="s">&#39;no_feature&#39;</span><span class="p">,</span>
+                 <span class="s">&#39;not_aligned&#39;</span><span class="p">,</span> <span class="s">&#39;too_low_aQual&#39;</span><span class="p">]</span>
+    
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">linedata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">linedata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excludelist</span><span class="p">:</span>
+            <span class="n">data_dic</span><span class="p">[</span><span class="n">linedata</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">linedata</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+    
+    <span class="k">return</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">data_dic</span><span class="p">)</span>        
+</div>
+<div class="viewcode-block" id="readBatchInfo"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.readBatchInfo">[docs]</a><span class="k">def</span> <span class="nf">readBatchInfo</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39; read the batch info data for the spike ins for all replicates</span>
+<span class="sd">        </span>
+<span class="sd">    Its fucked up, I know, but for some reason people decided to have</span>
+<span class="sd">    a different naming convention for the output ERCC read count files</span>
+<span class="sd">    than for the original data files. This means that there is a </span>
+<span class="sd">    disconnect between the two so now I have to invent some shit to </span>
+<span class="sd">    relate the two sensibly. The columns of this file are:</span>
+<span class="sd">        External ID, Internal ID, Type, MID, Batch, Spike-in mix </span>
+<span class="sd">    </span>
+<span class="sd">    one row per spike-in, with column headers.</span>
+<span class="sd">    </span>
+<span class="sd">    Type will be scraped to get the conditions, External ID will be used</span>
+<span class="sd">    to compute condition_replicate_ID. </span>
+<span class="sd">    </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Reading batch file </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> 
+                                                        <span class="n">options</span><span class="o">.</span><span class="n">feature_batch</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+        
+    <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">feature_batch</span><span class="p">,</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">id_dic</span><span class="o">=</span><span class="p">{}</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">linedata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">id_dic</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">linedata</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span><span class="o">=</span><span class="p">{}</span>
+        <span class="n">j</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">while</span> <span class="n">j</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+            <span class="n">id_dic</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">linedata</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="n">cols</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">=</span><span class="n">linedata</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>    
+            <span class="n">j</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+        
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">id_dic</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">ids</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">repsubtract</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">current_condition</span> <span class="o">=</span> <span class="n">id_dic</span><span class="p">[</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s">&quot;Type&quot;</span><span class="p">]</span>
+    <span class="n">sample_dic</span><span class="o">=</span><span class="p">{}</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">id_dic</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s">&quot;Type&quot;</span><span class="p">]</span><span class="o">!=</span><span class="n">current_condition</span><span class="p">:</span>
+            <span class="n">repsubtract</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="n">current_condition</span> <span class="o">=</span> <span class="n">id_dic</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s">&quot;Type&quot;</span><span class="p">]</span>
+        
+        <span class="n">dic_key</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%02i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">current_condition</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">-</span><span class="n">repsubtract</span><span class="p">)</span>
+        <span class="n">sample_dic</span><span class="p">[</span><span class="n">dic_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">id_dic</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+    
+    <span class="k">return</span><span class="p">(</span><span class="n">sample_dic</span><span class="p">)</span>        
+</div>
+<div class="viewcode-block" id="getSpikeCounts"><a class="viewcode-back" href="../getSpikeCounts_autodocs.html#getSpikeCounts.getSpikeCounts">[docs]</a><span class="k">def</span> <span class="nf">getSpikeCounts</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    
+    <span class="sd">&#39;&#39;&#39; concatenate read-count data for the spike ins across lanes and reps</span>
+<span class="sd">    </span>
+<span class="sd">    Files should be a list of filenames which encode the condition, sample </span>
+<span class="sd">    and lane details in the following way:</span>
+<span class="sd">        &lt;condition&gt;_rep&lt;sample_no&gt;_lane&lt;lane_no&gt;_*</span>
+<span class="sd">    </span>
+<span class="sd">    Each file should be a tab-separated text file with columns:</span>
+<span class="sd">        ERCC ID, count</span>
+<span class="sd">    </span>
+<span class="sd">    one row per spike-in, no column headers.&#39;&#39;&#39;</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Reading read-count data ...&quot;</span> <span class="o">%</span> <span class="n">timeStr</span><span class="p">())</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+    
+    <span class="n">cond_dic</span><span class="o">=</span><span class="p">{}</span>
+    <span class="n">data_dic</span><span class="o">=</span><span class="p">{}</span>
+    <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">readSpikeCounts</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data_dic</span><span class="p">[</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">)][</span><span class="n">l</span><span class="p">]</span><span class="o">=</span><span class="n">data</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">data_dic</span><span class="p">[</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">)]</span><span class="o">=</span><span class="p">{}</span>
+            <span class="n">data_dic</span><span class="p">[</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">)][</span><span class="n">l</span><span class="p">]</span><span class="o">=</span><span class="n">data</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cond_dic</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cond_dic</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">cond_dic</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">=</span><span class="p">{}</span>
+                <span class="n">cond_dic</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">]</span>
+        
+    <span class="c"># build numpy data cube</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">data_dic</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">lanes</span> <span class="o">=</span> <span class="n">data_dic</span><span class="p">[</span><span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">spikes</span> <span class="o">=</span> <span class="n">data_dic</span><span class="p">[</span><span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">lanes</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">samples</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">lanes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">spikes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    
+    <span class="n">data_cubes_axes</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;x&quot;</span><span class="p">:</span><span class="n">samples</span><span class="p">,</span><span class="s">&quot;y&quot;</span><span class="p">:</span><span class="n">lanes</span><span class="p">,</span><span class="s">&quot;z&quot;</span><span class="p">:</span><span class="n">spikes</span><span class="p">}</span>
+    <span class="n">data_cube</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">lanes</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">spikes</span><span class="p">)),</span>
+                            <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;float&#39;</span>
+                            <span class="p">)</span>
+    
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+        <span class="n">j</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">while</span> <span class="n">j</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">lanes</span><span class="p">):</span>
+            <span class="n">k</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">while</span> <span class="n">k</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">spikes</span><span class="p">):</span>
+                <span class="n">data_cube</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_dic</span><span class="p">[</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">lanes</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="n">spikes</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+                <span class="n">k</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="n">j</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+        
+    <span class="k">return</span><span class="p">(</span><span class="n">data_dic</span><span class="p">,</span> <span class="n">data_cube</span><span class="p">,</span> <span class="n">data_cubes_axes</span><span class="p">)</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c"># parse command line options - note that because we&#39;re using python 2.6.4,</span>
+    <span class="c"># and hence optparse rather than argparse, I&#39;m forcing everything to be an</span>
+    <span class="c"># &#39;option&#39; even if it is required.</span>
+    
+    <span class="c"># define options</span>
+    <span class="n">optslist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-a&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--annotfile&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;feature_annot&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Path to the feature annotation file for the &quot;</span> \
+                             <span class="s">&quot;spike-ins.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;input_file&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-b&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--batchfile&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;feature_batch&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Path to the feature batch file information &quot;</span> \
+                             <span class="s">&quot;for the spike-ins.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;input_file&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-c&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--analyfile&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;feature_analy&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Path to the feature analysis file for the &quot;</span> \
+                             <span class="s">&quot;spike-ins.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;input_file&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-d&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--datapath&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;datapath&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Path to the data directory of the experiment.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;input_path&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-o&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--outfile&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;outfile&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;The name (inc. path if different from the &quot;</span> \
+                             <span class="s">&quot;current working directory) of the output file &quot;</span> \
+                             <span class="s">&quot;containing the results.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;output_file&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-l&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--logfile&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;log&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;The name (inc. path if different from the &quot;</span> \
+                             <span class="s">&quot;current working directory) of the log file &quot;</span> \
+                             <span class="s">&quot;from running this script.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;required&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;opt_type&quot;</span><span class="p">:</span> <span class="s">&quot;output_file&quot;</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="s">&quot;-v&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--verbose&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;verbose&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Turn on verbose logging.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">False</span>
+                    <span class="p">})</span>
+    <span class="n">optslist</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                     <span class="s">&quot;short&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;long&quot;</span><span class="p">:</span> <span class="s">&quot;--fileext&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;dest&quot;</span><span class="p">:</span> <span class="s">&quot;ext&quot;</span><span class="p">,</span> 
+                     <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;store&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;help&quot;</span><span class="p">:</span> <span class="s">&quot;Set the filename extension to read. These &quot;</span> \
+                             <span class="s">&quot;should be tab-separated value text files. &quot;</span> \
+                             <span class="s">&quot;Defaults to .tsv.&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="s">&quot;tsv&quot;</span><span class="p">,</span>
+                    <span class="p">})</span>
+    
+    <span class="c"># build options from commandline</span>
+    
+    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">%prog -a|--annotfile &lt;file&gt; -b|--batchfile &lt;file&gt;&quot;</span> \
+            <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">-c|--analyfile &lt;file&gt; -d|--datapath &lt;path&gt;&quot;</span> \
+            <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">-o|--outfile &lt;file&gt; -l|--logfile &lt;file&gt; [--fileext &lt;str&gt;] &quot;</span> \
+            <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">[--version] [-v|--verbose] [--help]&quot;</span>
+    
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;%prog v&quot;</span><span class="o">+</span><span class="n">version_string</span><span class="p">)</span>
+        
+    <span class="c">#define option groups</span>
+    
+    <span class="n">reqgroup</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;Required Arguments&quot;</span><span class="p">)</span>
+    
+    <span class="c"># add options to the groups</span>
+    
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">optslist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;group&quot;</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;required&quot;</span><span class="p">:</span>
+            <span class="n">reqgroup</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span> 
+                                <span class="n">action</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> <span class="n">dest</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">],</span>
+                                <span class="n">help</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;short&quot;</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span> 
+                                  <span class="n">action</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> <span class="n">dest</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">],</span> 
+                                  <span class="n">help</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;long&quot;</span><span class="p">],</span> <span class="n">action</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> 
+                                  <span class="n">dest</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">],</span> 
+                                  <span class="n">default</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="s">&quot;default&quot;</span><span class="p">])</span>
+    
+    <span class="c"># add groups to the parser</span>
+    
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">reqgroup</span><span class="p">)</span>
+    
+    <span class="c"># parse arguments</span>
+    
+    <span class="n">options</span><span class="p">,</span> <span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    
+    <span class="c"># check that all required options have been provided</span>
+    
+    <span class="n">parse_required_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">)</span>
+    
+    <span class="c"># check all values are allowed, or default to, well, the defaults!</span>
+    
+    <span class="n">parse_allowed_values</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">)</span>
+    
+    <span class="c"># check that all options are of the right type (if specified)</span>
+    
+    <span class="n">parse_option_type</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">)</span>
+    
+    <span class="c"># open the logfile and write the basic header information</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="n">write_log_header</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optslist</span><span class="p">)</span>
+    
+    <span class="n">spike_dic</span> <span class="o">=</span> <span class="n">readSpikeAnnotations</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">spike_dic</span> <span class="o">=</span> <span class="n">readSpikeAnalysis</span><span class="p">(</span><span class="n">spike_dic</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+    <span class="n">batch_dic</span> <span class="o">=</span> <span class="n">readBatchInfo</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Reading data path </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> <span class="n">options</span><span class="o">.</span><span class="n">datapath</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+
+    <span class="n">contents</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">datapath</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^.+\.</span><span class="si">%s</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="n">options</span><span class="o">.</span><span class="n">ext</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">datapath</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+        
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: found </span><span class="si">%i</span><span class="s"> files.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+
+    <span class="n">data_dic</span><span class="p">,</span> <span class="n">data_cube</span><span class="p">,</span> <span class="n">data_cube_axes</span> <span class="o">=</span> <span class="n">getSpikeCounts</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: Writing data to </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeStr</span><span class="p">(),</span> <span class="n">options</span><span class="o">.</span><span class="n">outfile</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">outfile</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">cPickle</span><span class="o">.</span><span class="n">dump</span><span class="p">((</span><span class="n">spike_dic</span><span class="p">,</span> <span class="n">data_dic</span><span class="p">,</span> <span class="n">data_cube</span><span class="p">,</span> <span class="n">data_cube_axes</span><span class="p">,</span> <span class="n">batch_dic</span><span class="p">),</span>
+                 <span class="nb">file</span>
+                 <span class="p">)</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">log</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">: finished.&quot;</span> <span class="o">%</span> <span class="n">timeStr</span><span class="p">())</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+
+<span class="c">#===============================================================================</span>
+<span class="c">#</span>
+<span class="c"># THIS LOT HERE IS SO I CAN MAKE FILES MAREKS PERL CAN READ!!!</span>
+<span class="c">#</span>
+<span class="c"># file = open(&quot;marek_spikes_snf2_01.tsv&quot;,&quot;w&quot;) </span>
+<span class="c"># x=0</span>
+<span class="c"># headerline = &quot;spikein\t&quot;</span>
+<span class="c"># for lane in axes[&quot;y&quot;]:</span>
+<span class="c">#    headerline = &quot;%slane_%s\t&quot; % (headerline,lane)</span>
+<span class="c"># </span>
+<span class="c"># file.write(re.sub(&quot;\t$&quot;,&quot;\n&quot;,headerline))</span>
+<span class="c"># </span>
+<span class="c"># i=0</span>
+<span class="c"># while i&lt;len(axes[&quot;z&quot;]):</span>
+<span class="c">#    dataline = &quot;%s\t&quot; % axes[&quot;z&quot;][i]</span>
+<span class="c">#    j=0</span>
+<span class="c">#    while j&lt;len(axes[&quot;y&quot;]):</span>
+<span class="c">#        dataline = &quot;%s%i\t&quot; % (dataline,int(data_cube[x,j,i]))</span>
+<span class="c">#        j+=1</span>
+<span class="c">#    </span>
+<span class="c">#    file.write(re.sub(&quot;\t$&quot;,&quot;\n&quot;,dataline))</span>
+<span class="c">#    i+=1</span>
+<span class="c"># </span>
+<span class="c"># file.close()</span>
+<span class="c">#===============================================================================</span>
+
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">GRNASeq 1.9 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Nick Schurch.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

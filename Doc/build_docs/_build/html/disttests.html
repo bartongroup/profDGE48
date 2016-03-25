@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Testing gene expression distributions &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="testing-gene-expression-distributions">
+<span id="dists"></span><h1>Testing gene expression distributions<a class="headerlink" href="#testing-gene-expression-distributions" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="distribution-test-pl">
+<span id="distribution-test-perldoc"></span><h1>distribution_test.pl<a class="headerlink" href="#distribution-test-pl" title="Permalink to this headline">¶</a></h1>
+<p>Performs goodness-of-fit distribution test for gene expression data across
+biological replicates. For normal, log-normal and Poisson distributions tests
+are performed by this script. For across-lane Poisson and negative binomial,
+there are separate scripts, and this scritp only reads data. A figure is
+created with test results, showing distribution of p-values and p-value
+versus mean count plot:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">distribution_test</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">dist</span><span class="o">=</span><span class="n">lnorm</span> <span class="o">-</span><span class="n">clean</span> <span class="o">-</span><span class="n">psfile</span><span class="o">=</span><span class="n">lnrom_test</span><span class="o">.</span><span class="n">ps</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-dist</cite> - Distribution to use for the test.</p>
+<ul class="simple">
+<li>norm - normal</li>
+<li>lnorm - log-normal</li>
+<li>pois - Poisson</li>
+<li>tpois - technical Poisson (between lanes); data are read from <em>all_poiss.dat</em> file, created with <a class="reference internal" href="#poisson-reps-perldoc"><em>poisson_reps.pl</em></a>.</li>
+<li>nb - negative binomial using the method described in <a class="reference external" href="http://rivista-statistica.unibo.it/article/download/92/88">Meintanis (2005)</a>; you need to run <a class="reference internal" href="#grid-launcher-nbtest-perldoc"><em>grid_launcher_nbtest.pl</em></a> first. Other NB methods do not work very well.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-lpoisfile</cite> - File with lane goodness-of-fit results, created by <a class="reference internal" href="#poisson-reps-perldoc"><em>poisson_reps.pl</em></a>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-clean</cite> - If defined, only clean replicates will be used, as defined in <em>defs.dat</em> file.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-norm=[none|totcount|totcountm|deseq|tmm|spikein]</cite> - Normalization of gene expression data.</p>
+<ul class="simple">
+<li>none - raw counts used - <strong>not recommended</strong></li>
+<li>totcount - total count divided by 1e6 - <strong>not recommended</strong></li>
+<li>totcountm - total count divided by its mean</li>
+<li>deseq - DESeq normalization</li>
+<li>tmm - TMM normalization</li>
+<li>spikein - normalization to spike-ins (requires files with spike-in normalizing factors, <em>&lt;condition&gt;_spikein_normfac.txt</em> in countsdir directory, as defined in <em>defs.dat</em>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-ptype=[dispersion|logratio]</cite> - Type of Poisson test used. (Default: &#8216;dispersion&#8217;)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-minp</cite> - Minimum p-value in the plot.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-out=[chauvenet|sigma]</cite> - The method to reject outliers before doing test for normality or log-normality. If not specified, outliers are not rejected.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-sigma</cite> - Sigma parameter for <em>sigma</em> method of rejecting outliers.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-nbstat=[m|a]</cite> - Statistic to use with negative binomial test. &#8216;m&#8217; - <a class="reference external" href="http://rivista-statistica.unibo.it/article/download/92/88">Meintanis (2005)</a>, &#8216;a&#8217; - <a class="reference external" href="http://projecteuclid.org/euclid.aoms/1177729437">Anderson-Darling (1952)</a>. The latter one doesn&#8217;t work very well. Default value is &#8216;m&#8217;.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-report</cite> - If specified a file will be created with mean and p-values, which can used for further analysis.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-help</cite> - Brief help.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first last"><cite>-man</cite> - Full manpage of program.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="grid-launcher-nbtest-pl">
+<span id="grid-launcher-nbtest-perldoc"></span><h1>grid_launcher_nbtest.pl<a class="headerlink" href="#grid-launcher-nbtest-pl" title="Permalink to this headline">¶</a></h1>
+<p>Runs negative binomial test (script <a class="reference internal" href="#one-nb-test-perldoc"><em>one_nb_test.pl</em></a>) on the cluster:</p>
+<div class="highlight-python"><pre>grid_launcher_nbtest.pl -script=./one_nb_test.pl -logdir=./nb_test -outfile=nbtest.txt</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-script</cite> - Location (full path and name) of the script <a class="reference internal" href="#one-nb-test-perldoc"><em>one_nb_test.pl</em></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-logdir</cite> - Path to the directory where all intermediate files are stored.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Aggregated output file containing DE results.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-batchsize</cite> - Number of genes in one batch. (Default: 30)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-ncrit</cite> - Critical number of positive results to stop the simulation. See function <em>NBBootstrapTest</em> in module <a class="reference internal" href="modules.html#distribution-perlmod"><em>Distribution.pm</em></a>. (Default: 30)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-maxn</cite> - Maximum number of simulations. (Default: 1e7)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-stat</cite> - Statistic to use with Meintanis test. &#8216;m&#8217; is for Meintanis, &#8216;a&#8217; for Anderson-Darling. The default value is &#8216;m&#8217;.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-options</cite> - Any other options passed to the script.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-queue</cite> - Cluster queue name(s), comma delimited.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-mem</cite> - Memory requirement for each job. The default value is &#8216;4000M&#8217;.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="one-nb-test-pl">
+<span id="one-nb-test-perldoc"></span><h1>one_nb_test.pl<a class="headerlink" href="#one-nb-test-pl" title="Permalink to this headline">¶</a></h1>
+<p>This script is a part of <a class="reference internal" href="#grid-launcher-nbtest-perldoc"><em>grid_launcher_nbtest.pl</em></a>.
+It is not supposed to be run directly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-batch</cite> - Batch number.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-logdir</cite> - Path to the directory where all intermediate files are stored.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Output file containing DE results.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-batchsize</cite> - Number of genes in one batch. Default is 30.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-ncrit</cite> - Critical number of positive results to stop the simulation. See function <em>NBBootstrapTest</em> in module <a class="reference internal" href="modules.html#distribution-perlmod"><em>Distribution.pm</em></a>. Default is 30.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-maxn</cite> - Maximum number of simulations. Default is 1e7.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-stat</cite> - Statistic to use with Meintanis test. &#8216;m&#8217; is for Meintanis, &#8216;a&#8217; for Anderson-Darling. The default value is &#8216;m&#8217;.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="poisson-reps-pl">
+<span id="poisson-reps-perldoc"></span><h1>poisson_reps.pl<a class="headerlink" href="#poisson-reps-pl" title="Permalink to this headline">¶</a></h1>
+<p>Performs goodness-of-fit test for Poisson distribution across lanes. Requires
+gene expression files in a default directory (as defined in <em>defs.dat</em>) and a
+total read count file created with <a class="reference internal" href="mapping.html#count-fastq-reads-lanes-perldoc"><em>count_fastq_reads_lane.pl</em></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">poisson_reps</span><span class="o">.</span><span class="n">pl</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-readcountfile</cite> - The file with total read counts per lane, created with <a class="reference internal" href="mapping.html#count-fastq-reads-lanes-perldoc"><em>count_fastq_reads_lane.pl</em></a>. The default name is <em>all_readcount_lane.dat</em>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - The file with test results. The default name is <em>all_poiss.dat</em>. There are four columns written to this file: mean, standard deviation, p-value (not adjusted) and (chi-square distributed) T-statistic.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-ptype=[dispersion|logratio]</cite> - Type of the test.</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Testing gene expression distributions</a></li>
+<li><a class="reference internal" href="#distribution-test-pl">distribution_test.pl</a></li>
+<li><a class="reference internal" href="#grid-launcher-nbtest-pl">grid_launcher_nbtest.pl</a></li>
+<li><a class="reference internal" href="#one-nb-test-pl">one_nb_test.pl</a></li>
+<li><a class="reference internal" href="#poisson-reps-pl">poisson_reps.pl</a><ul>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/disttests.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

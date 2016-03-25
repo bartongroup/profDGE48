@@ -1,0 +1,42 @@
+.. getSpikeCounts_autodocs:
+
+**************
+getSpikeCounts
+**************
+
+.. automodule:: getSpikeCounts
+
+Functions
+=========
+
+Argument parsing
+----------------
+
+.. autofunction:: parse_required_options
+.. autofunction:: parse_allowed_values
+.. autofunction:: parse_option_type
+
+Program, script and environment logging
+---------------------------------------
+
+.. autofunction:: write_log_header
+
+Experiment structure parsing
+----------------------------
+
+.. autofunction:: readSpikeAnnotations
+.. autofunction:: readSpikeAnalysis
+.. autofunction:: readSpikeCounts
+.. autofunction:: readBatchInfo
+
+Data aggregation
+----------------
+
+.. autofunction:: getSpikeCounts
+
+General housekeeping
+--------------------
+
+.. autofunction:: timeAndDateStr
+.. autofunction:: timeStr
+

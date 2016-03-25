@@ -1,0 +1,2107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Bootstrapping DGE calls &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="bootstrapping-dge-calls">
+<span id="bootstrapping"></span><h1>Bootstrapping DGE calls<a class="headerlink" href="#bootstrapping-dge-calls" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="add-gene-name-column-pl">
+<span id="add-gene-name-column-perldoc"></span><h2>add_gene_name_column.pl<a class="headerlink" href="#add-gene-name-column-pl" title="Permalink to this headline">¶</a></h2>
+<p>add_gene_name_column.pl - given a tab delimited file with Ensembl IDs in the
+first col, add a gene name:</p>
+<div class="highlight-python"><pre>add_gene_name_column.pl --in &lt;file&gt; --species &lt;name&gt; [--feature-type &lt;string&gt;] [--desc|--no-desc] [--coords|--no-coords] [--out &lt;file&gt;] [--verbose|--no-verbose] [--debug|--no-debug] [--man] [--help] [--version]</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;in</cite> - Input tab-delimited file. 1st column must be an ensembl ID.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;species</cite> - Species name.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;feature-type</cite> - Specify whether the Ensembl IDs correspond to genes or transcripts. [default: Genes]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;coords|&#8211;no-coords</cite> - Toggle whether to add gene description as well as gene name. [default: off]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;out</cite> - Output filename. [default: ensembl_annotated.csv]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default: on]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default: off]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;version</cite> - Only print out the version information before exiting.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+<p>Given a tab-delimited list with Ensembl gene IDs in the first column, add gene
+names (and optionally descriptions and coordinates) to the list. The additional
+information is placed as the last set of columns in the data, leaving the
+original data at the same columns. If the file has a header line, the first
+column must be called &#8216;GeneID&#8217; otherwise the formatting will be wrong.</p>
+</div>
+<div class="section" id="combine-bs-pvalues-pl">
+<span id="combine-bs-pvalues-perldoc"></span><h2>combine_bs_pvalues.pl<a class="headerlink" href="#combine-bs-pvalues-pl" title="Permalink to this headline">¶</a></h2>
+<p>Calculates median of p-values across bootstrap runs. The input is all sqlite
+.db files created by DE bootstrap (for a range of replicate numbers).
+The script will create a single .tsv file per replicate number, containing
+median p-values. This script is a wrapper around <a class="reference internal" href="#one-bs-pvalue-perldoc"><em>one_bs_pvalue.pl</em></a>, and
+it runs it on the cluster:</p>
+<div class="highlight-python"><pre>combine_bs_pvalues.pl -dbdir=./bs_results -dbform=de_ttest_rep%d.db</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-dbdir</cite> - Path to the directory containing .db files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-dbform</cite> - Format of .db file name, e.g. de_test_rep%d.db, for files de_test_rep2.db, de_test_rep3.db, ..., de_test_rep30.db. The replicates will be cycled between 2 and 48, non-existing files ignored.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-script</cite> - This should be the full path to the <a class="reference internal" href="#one-bs-pvalue-perldoc"><em>one_bs_pvalue.pl</em></a> script that this wrapper runs.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-logdir</cite> - Path to the directory where all intermediate files are stored. (Default: ./de_tests_logs.)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-outform</cite> - Format for output .tsv files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-queue</cite> - Cluster queue name or names (comma-separated).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="module-generic_wrapper">
+<span id="generic-wrapper-py"></span><span id="generic-wrapper-autodoc"></span><h1>generic_wrapper.py<a class="headerlink" href="#module-generic_wrapper" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-great-rna-seq-experiment-differential-expression-tool-bootstrap-wrapper">
+<h2>The Great RNA-Seq Experiment Differential Expression Tool Bootstrap Wrapper<a class="headerlink" href="#the-great-rna-seq-experiment-differential-expression-tool-bootstrap-wrapper" title="Permalink to this headline">¶</a></h2>
+<p>This file is a generic wrapper for running multiple bootstraps of
+<a class="reference external" href="https://www.r-project.org/">R</a> Differential Expression (DE) algorithms.
+Its written for
+<a class="reference external" href="https://www.python.org/download/releases/2.6.4/">python 2.6.4</a>,
+<a class="reference external" href="https://cran.r-project.org/src/base/R-3/R-3.2.2.tar.gz">R 3.2.2</a> and
+<a class="reference external" href="http://www.bioconductor.org/news/bioc_2_11_release/">bioconductor 3.2</a>.</p>
+<p>This script interfaces with a suite of
+<a class="reference external" href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/Rscript.html">Rscript</a>
+scripts - <a class="reference internal" href="DEtools.html#detools"><em>one for each tool</em></a> - through a set of common input
+parameters. This allows it to run each tool in a well-defined, consistent,
+fashion for multiple random selections of the biological replicates in the
+experiment. The script exposes the results through a standard <a class="reference external" href="https://www.sqlite.org/">sqlite</a> database structure.</p>
+<p>The idea of having a general wrapper for all the algorithms is to allow
+us to run each of the DE algorithms in a consistent fashion, directly from the
+the command line, and keep a careful track of exactly what tools were used at
+every stage to get from the read data to the DE results.</p>
+<p>The wrapper takes in a directory structure containing either:</p>
+<blockquote>
+<div><ul class="simple">
+<li>bam files that are the result of aligning raw fastq&#8217;s to a genome.</li>
+<li>pre-generated (possibly from a previous run of this script!) <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> output files.</li>
+</ul>
+</div></blockquote>
+<p>This structure also defines the experimental conditions. If the input is a set
+of bam files, it also requires a gtf/gff annotation file. It also requires
+an output filename and log filename. The script is SGE cluster aware through the
+<a class="reference external" href="http://code.google.com/p/drmaa-python/">python drmaa library</a> but can also
+be run stand-alone. It takes a significant amount of time to process lots of
+files and bootstraps though, so a cluster is recommended.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">version:</th><td class="field-body">3.0</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<p>This section provides a gross overview of the operation of the
+<em>generic_wrapper.py</em> script.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Parse command line arguments.</li>
+<li>Gather script and program version information and relevant environmental
+variables and write these to the log file.</li>
+<li>Parse experiment structure and get replicate file information.</li>
+<li>Calculate or read in the gene readcounts. If the counts need to be
+generated from the bam files, the script uses the <em>perl</em> script
+<a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a> which uses <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> to
+aggregate the readcounts for each gene. If pre-generated counts are
+being used they are just read directly from the files.</li>
+<li>Aggregate all the replicate gene expression data into a single matrix
+and begin the bootstrapping process.</li>
+<li>For each bootstrap, if required, calculate total count normalization
+factors and normalize the data. This total read count for the
+replicates selected in the bootstrap iteration is calculated by a
+cluster-aware routine that calls <a class="reference external" href="http://samtools.sourceforge.net/">samtools</a> with the <em>flagstat</em> option, and
+parses the output. <strong>Note:</strong> we don&#8217;t use this for the, calculations
+in <a class="reference internal" href="index.html#paper2"><em>Schurch et. al. (2015)</em></a>. There we use the default
+normalization method for each tool to run the DE analysis. These
+normalizations are aplied individually as part of <a class="reference internal" href="DEtools.html#detools"><em>each tools
+Rscript</em></a>.</li>
+<li>Write the (normalized) data to a file that is straightforward for R to
+read, and write the experiment structure to a file for R too!</li>
+<li>Run the specified R script that loads the expression data, performs
+internal tool-specific normalization (if required), then runs the
+DE tools on the data and finally the writes the results to a sensible
+format file. Help for each of R scripts, including some background for
+each DE algorithm (should) be accessible in the <a class="reference external" href="DEtools">Differential
+Expression Algorithms</a> section.</li>
+<li>Read and annotate the DE expression results with gene information from
+<a class="reference external" href="http://www.ensembl.org/index.html">ensembl</a> using the <em>perl</em> script
+<a class="reference internal" href="#add-gene-name-column-perldoc"><em>add_gene_name_column.pl</em></a> to get
+the relevant annotation information via the <em>ensembl perl</em> API.</li>
+<li>Store the results in a <a class="reference external" href="https://www.sqlite.org/">sqlite</a> database
+file with a standardized structure and cleanup the temporary directory
+specified with <em>&#8211;tmpdir</em>.</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="command-line-arguments">
+<h3>Command-line Arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>usage:</strong></dt>
+<dd>generic_wrapper.pl
+<em class="xref std std-option">-d|--datapath</em> <em>&lt;path&gt;</em>
+<em class="xref std std-option">-a|--annotation</em> <em>&lt;file&gt;</em>
+<em class="xref std std-option">-r|--scriptfile</em> <em>&lt;file&gt;</em>
+<em class="xref std std-option">-o|--outfile</em> <em>&lt;file&gt;</em>
+<em class="xref std std-option">-l|--logfile</em> <em>&lt;file&gt;</em>
+[<em class="xref std std-option">-s|species</em> <em>&lt;str&gt;</em>]
+[:option: <cite>&#8211;precounts</cite>
+[<em class="xref std std-option">-f|--feature</em> <em>&lt;str&gt;</em>]
+[<em class="xref std std-option">-c|--count-method</em> <em>&lt;str&gt;</em>]
+[<em class="xref std std-option">-n|--norm</em> <em>&lt;str&gt;</em>]
+[<a class="reference internal" href="#cmdoption--gbgfile"><em class="xref std std-option">--gbgfile</em></a> <em>&lt;path&gt;&lt;filename&gt;</em>]
+[<a class="reference internal" href="#cmdoption--agncfile"><em class="xref std std-option">--agncfile</em></a> <em>&lt;path&gt;&lt;filename&gt;</em>]
+[<a class="reference internal" href="#cmdoption--Rpath"><em class="xref std std-option">--Rpath</em></a> <em>&lt;path&gt;</em>]
+[<a class="reference internal" href="#cmdoption--tmpdir"><em class="xref std std-option">--tmpdir</em></a> <em>&lt;path&gt;</em>]
+[<a class="reference internal" href="#cmdoption--keep-tmpdir"><em class="xref std std-option">--keep-tmpdir</em></a>]
+[<a class="reference internal" href="#cmdoption--nocluster"><em class="xref std std-option">--nocluster</em></a>]
+[<a class="reference internal" href="#cmdoption--clustq"><em class="xref std std-option">--clustq</em></a> <em>&lt;str&gt;</em>]
+[<a class="reference internal" href="#cmdoption--samtoolspath"><em class="xref std std-option">--samtoolspath</em></a> <em>&lt;path&gt;</em>]
+[<a class="reference internal" href="#cmdoption--restart"><em class="xref std std-option">--restart</em></a>]
+[<em class="xref std std-option">--verbose</em>]
+[<a class="reference internal" href="#cmdoption--version"><em class="xref std std-option">--version</em></a>]
+[<em class="xref std std-option">--help</em>]</dd>
+</dl>
+<div class="section" id="required-parameters">
+<span id="gw-required"></span><h4>Required Parameters<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption-d">
+<tt class="descname">-d</tt><tt class="descclassname"> &lt;path&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--datapath</tt><tt class="descclassname"> &lt;path&gt;</tt><a class="headerlink" href="#cmdoption-d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the data directory of the experiment. Each sub-directory in this
+will be treated as a separate condition in the experiment (with the name
+of the condition matching the name of the directory). Each .bam file or
+pre-calculated gene count file (defined by <a class="reference internal" href="#cmdoption--precounts"><em class="xref std std-option">--precounts</em></a>)
+in each directory is treated as a replicate for that condition. BAM file
+indexes for each file should have the same filename, with .bai post-pended.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-a">
+<tt class="descname">-a</tt><tt class="descclassname"> &lt;file&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--annotation</tt><tt class="descclassname"> &lt;file&gt;</tt><a class="headerlink" href="#cmdoption-a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the <a class="reference external" href="https://www.sanger.ac.uk/resources/software/gff/">GFF</a>
+feature annotation file for the data. This file should
+match the features you are counting the RNA-Seq expression for. This is
+required even if you are using pre-calculated gene count files.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-r">
+<tt class="descname">-r</tt><tt class="descclassname"> &lt;file&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--scriptfile</tt><tt class="descclassname"> &lt;file&gt;</tt><a class="headerlink" href="#cmdoption-r" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name and path of Rscript file to execute in order to perform differential
+gene expression analysis. See <a class="reference internal" href="DEtools.html#detools"><em>Differential Expression Algorithms</em></a> section for more details and help with each tool.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-o">
+<tt class="descname">-o</tt><tt class="descclassname"> &lt;filename&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--outfile</tt><tt class="descclassname"> &lt;filename&gt;</tt><a class="headerlink" href="#cmdoption-o" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name (inc. path if different fromt he current direstory) of the output
+sqlite file from the wrapper.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-l">
+<tt class="descname">-l</tt><tt class="descclassname"> &lt;filename&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--logfile</tt><tt class="descclassname"> &lt;filename&gt;</tt><a class="headerlink" href="#cmdoption-l" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name (inc. path) of the log file from the wrapper.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="annotation-options">
+<h4>Annotation options<a class="headerlink" href="#annotation-options" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption-s">
+<tt class="descname">-s</tt><tt class="descclassname"> &lt;str&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--species</tt><tt class="descclassname"> &lt;str&gt; (Default: &quot;Saccharomyces cerevisiae&quot;)</tt><a class="headerlink" href="#cmdoption-s" title="Permalink to this definition">¶</a></dt>
+<dd><p>The species used to generate the RNA-Seq data. This is used by the
+<a class="reference external" href="http://www.ensembl.org/index.html">ensembl</a> API to annotate the features
+found, so it must be a recognizable name format for <a class="reference external" href="http://www.ensembl.org/index.html">ensembl</a> (<a class="reference external" href="http://www.ensembl.org/info/about/species.html">this list</a> is probably a good place
+to start). Strings with spaces in must be in quotes.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="reads-to-gene-counts-options">
+<h4>reads-to-gene-counts options<a class="headerlink" href="#reads-to-gene-counts-options" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption--precounts">
+<tt class="descname">--precounts</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--precounts" title="Permalink to this definition">¶</a></dt>
+<dd><p>If this option is given the script looks for pre-generated gene count
+files in <em class="xref std std-option">--datapath</em> The files to look for are defined by the
+<a class="reference internal" href="#cmdoption--precount_fileext"><em class="xref std std-option">--precount_fileext</em></a> options. If found, the gene counts from these
+files are used and gene count summarization from .bam files is skipped. If
+no files of the type are found, the script will look for bam files and
+will do gene count summarization if they are found.</p>
+<p>If this option and <a class="reference internal" href="#cmdoption--savecounts"><em class="xref std std-option">--savecounts</em></a> are set, and no gene count files
+are found, gene count summarization from the bam files will be done and the
+resulting gene count files saved to the path specified by
+<em class="xref std std-option">--datapath</em>.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--precount_fileext">
+<tt class="descname">--precount_fileext</tt><tt class="descclassname"> &lt;str&gt; (Default: gbgout)</tt><a class="headerlink" href="#cmdoption--precount_fileext" title="Permalink to this definition">¶</a></dt>
+<dd><p>The file extension of pre-generated gene count data to look for.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--savecounts">
+<tt class="descname">--savecounts</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--savecounts" title="Permalink to this definition">¶</a></dt>
+<dd><p>If this option is given and the code summarises gene count information from
+bam file alignments, the resulting gene count files from running the gene
+count summarization will be saved to the path specified with
+<em class="xref std std-option">--datapath</em>.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-f">
+<tt class="descname">-f</tt><tt class="descclassname"> &lt;str&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--feature</tt><tt class="descclassname"> &lt;str&gt; (Default: gene_id)</tt><a class="headerlink" href="#cmdoption-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the level at which you count the RNA-Seq signal. Options are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>gene_id</li>
+<li>transcript_id</li>
+</ol>
+</div></blockquote>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-c">
+<tt class="descname">-c</tt><tt class="descclassname"> &lt;str&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--count-method</tt><tt class="descclassname"> &lt;str&gt; (Default: union)</tt><a class="headerlink" href="#cmdoption-c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose the method used by <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> for counting
+the reads for each feature. Options are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>union</li>
+<li>istrict</li>
+<li>inoempty</li>
+</ol>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="normalization-options">
+<h4>Normalization options<a class="headerlink" href="#normalization-options" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption-n">
+<tt class="descname">-n</tt><tt class="descclassname"> &lt;str&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--norm</tt><tt class="descclassname"> &lt;str&gt; (Default: none)</tt><a class="headerlink" href="#cmdoption-n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalization method for the tool being wrapped. Options are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>none</li>
+<li>package:<em>normtype</em> - pass normalization control to the Rscript.
+<em>normtype</em> can be any of the possible normalization methods available
+from the Rscript for the tool.</li>
+<li>pmrm - Force Per Million Reads Mapped normalization.</li>
+<li>deseq - Force deseq-style normalisation.</li>
+</ol>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="bootstrap-options">
+<h4>Bootstrap options<a class="headerlink" href="#bootstrap-options" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption-k">
+<tt class="descname">-k</tt><tt class="descclassname"> &lt;int&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--kreps</tt><tt class="descclassname"> &lt;int&gt; (Default: None)</tt><a class="headerlink" href="#cmdoption-k" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of replicates to randomly select for each bootstrap. Replicates
+listed with <em class="xref std std-option">--excludelist</em> are excluded from selection. Replicates
+listed with <em class="xref std std-option">--includelist</em> are always included in the selection.
+If this option is <em>None</em>, or is a number greater than remaining number of
+replicates after excluding those specified with <em class="xref std std-option">--excludelist</em>,
+then all the replicates are used. If this option is a number less than the
+remaining number of replicates fter excluding those specified with
+<em class="xref std std-option">--excludelist</em>, then this number of replicates are selected at
+random for each bootstrap iteration.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-b">
+<tt class="descname">-b</tt><tt class="descclassname"> &lt;int&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--nbootstrap</tt><tt class="descclassname"> &lt;int&gt; (Default: None)</tt><a class="headerlink" href="#cmdoption-b" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of bootstrap iterations to run.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-i">
+<tt class="descname">-i</tt><tt class="descclassname"> &lt;file&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--includelist</tt><tt class="descclassname"> &lt;file&gt; (Default: None)</tt><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
+<dd><p>A filename (including path is different from the current directory) for a
+text file listing (one per line) the full names of the replicate files
+to be explicitely included in every bootstrap selection.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-e">
+<tt class="descname">-e</tt><tt class="descclassname"> &lt;file&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--excludelist</tt><tt class="descclassname"> &lt;file&gt; (Default: None)</tt><a class="headerlink" href="#cmdoption-e" title="Permalink to this definition">¶</a></dt>
+<dd><p>A filename (including path is different from the current directory) for a
+text file listing (one per line) the full names of the replicate files
+to be explicitely excluded from every bootstrap selection. This can be
+used to specify bad replicates to exclude. An example file is given in
+<em class="xref std std-ref">exclude_badreps.tsv</em>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="external-dependancies-and-environment">
+<h4>External Dependancies and Environment<a class="headerlink" href="#external-dependancies-and-environment" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption--gbgfile">
+<tt class="descname">--gbgfile</tt><tt class="descclassname"> (Default: ./group_by_gene.pl)</tt><a class="headerlink" href="#cmdoption--gbgfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>The full path to the <a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a> script.
+Called run <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a>.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--agncfile">
+<tt class="descname">--agncfile</tt><tt class="descclassname"> (Default: ./add_gene_name_column.pl)</tt><a class="headerlink" href="#cmdoption--agncfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>The full path to the <a class="reference internal" href="#add-gene-name-column-perldoc"><em>add_gene_name_column.pl</em></a> script. Called to annotate the output from
+<a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a>.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--Rpath">
+<tt class="descname">--Rpath</tt><tt class="descclassname"> ((Default: /sw/opt/R/2.15.1/bin/Rscript)</tt><a class="headerlink" href="#cmdoption--Rpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the path to the Rscript executable for the R installation to use.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--perlpath">
+<tt class="descname">--perlpath</tt><tt class="descclassname"> (Default: /user/bin/perl)</tt><a class="headerlink" href="#cmdoption--perlpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the path to the <em>perl</em> executable for the perl installation to use.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--samtoolspath">
+<tt class="descname">--samtoolspath</tt><tt class="descclassname"> (Default: /local/bin/samtools)</tt><a class="headerlink" href="#cmdoption--samtoolspath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the path to the <a class="reference external" href="http://samtools.sourceforge.net/">samtools</a>
+executable to use.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="cluster-options">
+<h4>Cluster options<a class="headerlink" href="#cluster-options" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption-j">
+<tt class="descname">-j</tt><tt class="descclassname"> &lt;int&gt;</tt><tt class="descclassname">, </tt><tt class="descname">--njobs</tt><tt class="descclassname"> &lt;int&gt; (Default: 400)</tt><a class="headerlink" href="#cmdoption-j" title="Permalink to this definition">¶</a></dt>
+<dd><p>The max number of parallel cluster jobs to spawn if <a class="reference internal" href="#cmdoption--nocluster"><em class="xref std std-option">--nocluster</em></a>
+is not set.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--clustq">
+<tt class="descname">--clustq</tt><tt class="descclassname"> &lt;str&gt; (Default: 64bit-pri.q)</tt><a class="headerlink" href="#cmdoption--clustq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a specific cluster queue to use to run cluster jobs.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--nocluster">
+<tt class="descname">--nocluster</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--nocluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>If this option is given, the cluster support within the script will be
+diabled and everything will be run sequentially on the current machine.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="other-options">
+<h4>Other options<a class="headerlink" href="#other-options" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption--tmpdir">
+<tt class="descname">--tmpdir</tt><tt class="descclassname"> &lt;path&gt; (Default: ./.DEtemp)</tt><a class="headerlink" href="#cmdoption--tmpdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path of the temporary directory you with to use for storing
+intermediate files.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--keep-tmpdir">
+<tt class="descname">--keep-tmpdir</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--keep-tmpdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the entire script executes sucessfully the path defined with
+<a class="reference internal" href="#cmdoption--tmpdir"><em class="xref std std-option">--tmpdir</em></a> is usually cleaned up. With this option set the
+cleanup is disabled and the temp directory and files are retained.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--restart">
+<tt class="descname">--restart</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart a previously failed run. With this option set, this script will
+attempt to load the previous run settings and any parts of the run that
+were completed successfully from the <em>restart.pkl</em> file storred in
+the path provided with <a class="reference internal" href="#cmdoption--tmpdir"><em class="xref std std-option">--tmpdir</em></a>.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--version">
+<tt class="descname">--version</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show program&#8217;s version number and exit.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-v">
+<tt class="descname">-v</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--verbose</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn on verbose logging.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-h">
+<tt class="descname">-h</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--help</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a basic description of the tool and its options to STDOUT.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="internally-passed-options-do-not-set-these-manually">
+<h4>Internally-Passed options - <strong>DO NOT SET THESE MANUALLY</strong><a class="headerlink" href="#internally-passed-options-do-not-set-these-manually" title="Permalink to this headline">¶</a></h4>
+<dl class="option">
+<dt id="cmdoption--bootstrapmaster">
+<tt class="descname">--bootstrapmaster</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--bootstrapmaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines this as a master script that initiates bootstrap runs. This option
+should never be set manually. It is set internally to control spawned
+bootstrap cluster runs of this script.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption--bootstrapslave">
+<tt class="descname">--bootstrapslave</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--bootstrapslave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines this as a slave bootstrap run belonging to a set initiated by a
+<a class="reference internal" href="#cmdoption--bootstrapmaster"><em class="xref std std-option">--bootstrapmaster</em></a>. This option should never be set manually. It
+is set internally to control spawned bootstrap cluster runs of this script.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="output">
+<span id="genwrapout"></span><h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<p>The output from a sucessful run of this script is a single <a class="reference external" href="https://www.sqlite.org/">sqlite</a> database file with the following structure:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>Table:</strong> <em>features</em> - features the DE is calculated for.</p>
+<blockquote>
+<div><p>Col: <em>id</em></p>
+<p>Col: <em>featureID</em></p>
+<p>Col: <em>name</em></p>
+<p>Col: <em>desc</em></p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Table:</strong> <em>bslogs</em> - the output logs from each of the bootstrap runs.</p>
+<blockquote>
+<div><p>Col: <em>id</em></p>
+<p>Col: <em>log</em></p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Table:</strong> <em>bootstraps</em> - details of the bootstraps performed.</p>
+<blockquote>
+<div><p>Col: <em>id</em></p>
+<p>Col: <em>bsinlogid</em></p>
+<p>Col: <em>comments</em></p>
+<p>Col: <em>deruntime_sec</em></p>
+<p>Col: <em>logid</em> - Foreign Key to <em>bslogs.id</em></p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Table:</strong> <em>DEresults</em> - this table contains a column for each column of
+data output by the tool. To the best of our ability these results are
+output from the tools Rscript with a defined, consistent, set of columns.
+For the data presented in <a class="reference internal" href="index.html#paper2"><em>Schurch et. al. (2015)</em></a> this
+results in the columns described here:</p>
+<blockquote>
+<div><p>Col: <em>id</em></p>
+<p>Col: <em>featureid</em> - Foreign Key to <em>features.id</em></p>
+<p>Col: <em>bsid</em> - Foreign Key to <em>bootstraps.id</em></p>
+<p>Col: <em>log2foldchange</em></p>
+<p>Col: <em>significance</em></p>
+<p>Col: <em>Snf2</em></p>
+<p>Col: <em>WT</em></p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>These database files are then used by other scripts here to analyse and plot
+the bootstrap results.</p>
+</div>
+<div class="section" id="example-command-line">
+<h3>Example Command-line<a class="headerlink" href="#example-command-line" title="Permalink to this headline">¶</a></h3>
+<p>This is an example command line used for testing. It runs <a class="reference internal" href="DEtools.html#limma-rdoc"><em>limma</em></a> on a set of data for the ensembl 68 Saccharomyces cerevisiae
+annotation, keeping all temp files, in verbose mode without using a cluster
+looking for pre-generateded counts (saving them if they are have to be
+calculated by the script from .bam files):</p>
+<div class="highlight-python"><pre>./generic_wrapper.py -d testdata -a ../Annotations/Saccharomyces_cerevisiae.EF4.68.gtf
+-r limma.R --keep-tmpdir -v --gbgfile group_by_gene.pl --agncfile add_gene_name_column.pl
+-o test01.db -l test01.log --tmpdir testTMP --samtoolspath /sw/opt/samtools-0.1.18/samtools
+--precounts --nocluster --savecounts</pre>
+</div>
+</div>
+</div>
+<div class="section" id="generic-wrapper-py-functions">
+<h2>generic_wrapper.py Functions:<a class="headerlink" href="#generic-wrapper-py-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="experiment-structure-parsing">
+<h3>Experiment structure parsing<a class="headerlink" href="#experiment-structure-parsing" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="generic_wrapper.parse_experiment_data">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">parse_experiment_data</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#parse_experiment_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.parse_experiment_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets condition and replicate information from the directory structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a tuple containing:<ul class="simple">
+<li>a dictionary describing the experiment structure.</li>
+<li>a list of all the replicates int eh experiemnt.</li>
+<li>the list of forced included replicates.</li>
+<li>a flag indicating whether or not to run gene count summarization
+on the files.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>datapath</em> - path of the data files to parse</li>
+<li><em>precounts</em> - toggle whether to look for pre-generated gene count
+files or use bam files.</li>
+<li><em>precount_fileext</em> - extension of pre-generated gene count files to
+look for.</li>
+<li><em>kreps</em> - number of replicates to select for each botostrap iteration.</li>
+<li><em>nbootstrap</em> - the number of bootstrap iterations to run.</li>
+<li><em>inc_reps</em> - text file containing a list (one per line) of the
+replicates that must be included in every bootstrap iteration.</li>
+<li><em>exc_reps</em> - text file containing a list (one per line) of the
+replicates that must be excluded from all bootstrap iterations.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>This subroutine forces the inclusion of files in the <em>options.inc_reps</em>
+file and excludes replicates on the <em>options.exc_reps</em>. If
+<em>options.nbootstrap</em> is none, but <em>options.kreps</em> is an integer,
+it will select <em>options.kreps</em> replicates once from the full list returned
+as <em>all_replicates</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.runStructure">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">runStructure</tt><big>(</big><em>fileext</em>, <em>included</em>, <em>excluded</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#runStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.runStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the path for files &amp; directory structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fileext</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; extension of the files to look for</li>
+<li><strong>excluded</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; list of filenames to exclude</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>the experiment structure</li>
+<li>a replicate file list</li>
+<li>the list of forced included replicates</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the <em>datapath</em> keyword giving the
+path to parse for data files to parse. The script walks the path
+characterising the directory structure and identifying files with a
+matching extension. It automatically excludes any files it finds that
+are on the <em>excluded</em> list. Called by <a class="reference internal" href="#generic_wrapper.parse_experiment_data" title="generic_wrapper.parse_experiment_data"><tt class="xref py py-func docutils literal"><span class="pre">parse_experiment_data()</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id9">
+<h3>Bootstrapping<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="generic_wrapper.clusterBootstrap">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">clusterBootstrap</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#clusterBootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.clusterBootstrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup and run bootstrap iterations on the cluster</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a tuple containing:<ul class="simple">
+<li>a list of cluster logfiles - one for each spawned job</li>
+<li>a list of output sqlite databases containing DE results - one foe
+each spawned job</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This scrips takes in input options for the bootstrap runs and uses them to
+spawn a series of cluster runs of <em>generic_wrapper.py</em> (in slave mode) to
+actually do the DE calculations.</p>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>nbootstrap</em> - number of bootstraps to run.</li>
+<li><em>njobs</em> - the max number of cluster jobs to spawn.</li>
+<li><em>restart</em> - toggle whether to use the <em>restart.pkl</em> file to start a
+run - this is used by the runs spawned by this function.</li>
+<li><em>nocluster</em> - toggle runnign the bootstraps on the cluster.</li>
+<li><em>bootmaster</em> - internally set variable denoting the input as the
+master script.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>The <em>options</em> instance must also contain all the keywords required by
+<a class="reference internal" href="#generic_wrapper.runClusterBootstrap" title="generic_wrapper.runClusterBootstrap"><tt class="xref py py-func docutils literal"><span class="pre">runClusterBootstrap()</span></tt></a>, <a class="reference internal" href="#generic_wrapper.clusterDistribute" title="generic_wrapper.clusterDistribute"><tt class="xref py py-func docutils literal"><span class="pre">clusterDistribute()</span></tt></a> and
+<a class="reference internal" href="#generic_wrapper.monitorDrmaaJobs" title="generic_wrapper.monitorDrmaaJobs"><tt class="xref py py-func docutils literal"><span class="pre">monitorDrmaaJobs()</span></tt></a>, all of which are called by this function and are
+passed the input <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.clusterDistribute">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">clusterDistribute</tt><big>(</big><em>nb</em>, <em>nj</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#clusterDistribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.clusterDistribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates optimum bootstrap dist over the specified cluster nodes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nb</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; total number of bootstraps</li>
+<li><strong>nj</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; total number of cluster nodes to use</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a list of tuples each containing:</p>
+<ul class="simple">
+<li>the running total job count</li>
+<li>the number of of bootstraps to run in that job</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the <em>log</em> keywords containing the
+filename of the the log file to write to. This function is called by
+<a class="reference internal" href="#generic_wrapper.clusterBootstrap" title="generic_wrapper.clusterBootstrap"><tt class="xref py py-func docutils literal"><span class="pre">clusterBootstrap()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.rep_subselect">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">rep_subselect</tt><big>(</big><em>experiment_structure</em>, <em>include</em>, <em>options</em>, <em>data=None</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#rep_subselect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.rep_subselect" title="Permalink to this definition">¶</a></dt>
+<dd><p>subselects replicates from the full filename list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>experiment_structure</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; dictionary describing the directory, and
+hence the experiment, structure.</li>
+<li><strong>include</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; list of files to include in the subselection</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+<li><strong>data</strong> &#8211; a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> structured array instance output
+from <a class="reference internal" href="#generic_wrapper.read_expression_data" title="generic_wrapper.read_expression_data"><tt class="xref py py-func docutils literal"><span class="pre">read_expression_data()</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>a new experiemnt structure with just the selected replicates in</li>
+<li>a new replicate file list</li>
+<li>either <em>None</em> or, if data has been provided, a new subset of data for
+just the selected replicates.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>kreps</em> - number of replicates to select for each botostrap iteration.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+</ul>
+</div></blockquote>
+<p>Forces the inclusion of replicate filenames given in <em>include</em>. Called by
+<a class="reference internal" href="#generic_wrapper.parse_experiment_data" title="generic_wrapper.parse_experiment_data"><tt class="xref py py-func docutils literal"><span class="pre">parse_experiment_data()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.runClusterBootstrap">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">runClusterBootstrap</tt><big>(</big><em>c_session</em>, <em>i</em>, <em>b</em>, <em>boot_restart_file</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#runClusterBootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.runClusterBootstrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instances a new run of <em>generic_wrapper.py</em> script on the cluster</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c_session</strong> &#8211; a <tt class="xref py py-class docutils literal"><span class="pre">drmaa.Session</span></tt> instance for interacting with
+the cluster.</li>
+<li><strong>i</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; index of spawned cluster job cluster. Max value is defined by
+<em class="xref std std-option">--nbootstrap</em> of the master <em>generic_wrapper.py</em>
+run and is used to define cluster output log filenames.</li>
+<li><strong>b</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; the number of bootstrap iterations to run in this spawned
+job. This option is passed as <em class="xref std std-option">--nbootstrap</em>
+to the spawned slave <em>generic_wrapper.py</em> run.</li>
+<li><strong>boot_restart_file</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; filename of the current restart file.</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>the cluster job ID</li>
+<li>the filename of the cluster output log</li>
+<li>the filename of the Rscript output results file</li>
+<li>the filename of the spawned <em>generic_wrapper.py</em> logfile</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This function is called by <a class="reference internal" href="#generic_wrapper.clusterBootstrap" title="generic_wrapper.clusterBootstrap"><tt class="xref py py-func docutils literal"><span class="pre">clusterBootstrap()</span></tt></a>. The script uses
+<a class="reference external" href="http://docs.python.org/library/subprocess.html#subprocess.Popen" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">subprocess.Popen</span></tt></a> to call an external run of
+<em>generic_wrapper.py</em> but with the <a class="reference internal" href="#cmdoption--bootstrapslave"><em class="xref std std-option">--bootstrapslave</em></a> set
+to slave it to the master run. The restart file specified
+with <em>boot_restart_file</em> is loaded by the spawned job and passes the script
+parameters tot he run. This ensures all bootstrap run use the correct
+parameters and, as a bonus, we don&#8217;t need to calcualte things twice!</p>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>datapath</em> - path of the data files to parse.</li>
+<li><em>feature_annot</em> - the path to the <a class="reference external" href="https://www.sanger.ac.uk/resources/software/gff/">gff</a> file to use for
+gene summarization.</li>
+<li><em>outfile</em> - the output filename for the spawned cluster run. This is
+passed as <em class="xref std std-option">--outfile</em> to the spawned <em>generic_wrapper.py</em> run.</li>
+<li><em>script_file</em> - the filename of the Rscript to run on the data. This
+is passed as <em class="xref std std-option">--scriptfile</em> to the spawned
+<em>generic_wrapper.py</em> run.</li>
+<li><em>clustq</em> - the name of the cluster queue to submit jobs to.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>Note that this function includes a SGE-specific job submission parameter
+(in fact, they&#8217;re quite possibly specific to our individual cluster!).
+Briefly, they are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>-cwd</em> - specify running the job in the current working directory</li>
+<li><em>-clear</em> - clear any existing cluster queue settings.</li>
+<li><em>-q &#8216;options.clustq&#8217;</em> - specify the queue to submit the job to.</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="data-routines">
+<h3>Data Routines<a class="headerlink" href="#data-routines" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="generic_wrapper.get_gene_counts">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">get_gene_counts</tt><big>(</big><em>all_replicates</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#get_gene_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.get_gene_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get gene count summarization for all bam files in the experiemnt</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>all_replicates</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of all the replicates in the experiment
+(2nd element in the tuple output from
+<a class="reference internal" href="#generic_wrapper.parse_experiment_data" title="generic_wrapper.parse_experiment_data"><tt class="xref py py-func docutils literal"><span class="pre">parse_experiment_data()</span></tt></a>).</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of the resulting file containing the gene count
+summarisation from each bam file</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>feature_annot</em> - the path to the <a class="reference external" href="https://www.sanger.ac.uk/resources/software/gff/">gff</a> file to use for
+gene summarization.</li>
+<li><em>cmeth</em> - the method for <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> to use
+to summarize the read coutn data.</li>
+<li><em>feature</em> - the feature type in the annotation to summarise the read
+count data for.</li>
+<li><em>gbgpath</em> - the path to the <a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a> script.</li>
+<li><em>perlpath</em> - the path to the perl executable to use to run
+<a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a>.</li>
+<li><em>savecounts</em> - toggle saving the gene count summarization files.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+<li><em>nocluster</em> - toggle running the summarization on the cluster, or
+locally.</li>
+</ul>
+</div></blockquote>
+<p>Calls either <a class="reference internal" href="#generic_wrapper.run_gbg" title="generic_wrapper.run_gbg"><tt class="xref py py-func docutils literal"><span class="pre">run_gbg()</span></tt></a> or <a class="reference internal" href="#generic_wrapper.run_gbg_cluster" title="generic_wrapper.run_gbg_cluster"><tt class="xref py py-func docutils literal"><span class="pre">run_gbg_cluster()</span></tt></a> depending on
+whether <em>options.nocluster</em> is <em>True</em> or <em>False</em>. If <em>options.nocluster</em> is
+<em>False</em> then then <em>options</em> must also contain the keyword:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>clustq</em> - the name of the cluster queue to submit jobs to.</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.read_expression_data">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">read_expression_data</tt><big>(</big><em>replicate_files</em>, <em>options</em>, <em>format='unstruct'</em>, <em>delimiter='\t'</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#read_expression_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.read_expression_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>reads the gene count summarization data &amp; concatenates to a numpy array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>replicate_files</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of file containing replicate gene count
+data (output from <a class="reference internal" href="#generic_wrapper.get_gene_counts" title="generic_wrapper.get_gene_counts"><tt class="xref py py-func docutils literal"><span class="pre">get_gene_counts()</span></tt></a>).</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+<li><strong>format</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <p>the format of the output data from this function.
+Options are:</p>
+<ul>
+<li>unstruct - return a tuple of information</li>
+<li>struct - return a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> structured
+array</li>
+</ul>
+</li>
+<li><strong>delimiter</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The delimiter to use for separating fields in the
+read count summarization files.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>The functions returns either a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> structured
+array with feature, coordinate and description columns that
+contains the gene count summarization data for the
+replicates, or a tuple containing:</p>
+<blockquote>
+<div><ul class="simple">
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> with the read count summarization
+data.</li>
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing the feature names the
+read count summarization applies to (in the same order as the
+rows of the data array).</li>
+<li><em>None</em> (don&#8217;t ask).</li>
+<li>a list of the samples the read counts were summarized for (in
+the same order as the columns of the data array).</li>
+</ul>
+</div></blockquote>
+<p>The default is <em>unstruct</em>.</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the <em>log</em> keyword providing the
+filename of the the log file to write to.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.run_agnc">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">run_agnc</tt><big>(</big><em>agnc_file</em>, <em>options</em>, <em>coords=True</em>, <em>desc=True</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#run_agnc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.run_agnc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance a non-cluster run of gene count summarization annotation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>agnc_file</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the gene count summarization file to
+annotate</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li><em>None</em></li>
+<li>the name of the file containing the resulting annotated gene count
+summarization</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>species</em> - the ensembl species name.</li>
+<li><em>agncpath</em> - the path to the <a class="reference internal" href="#add-gene-name-column-perldoc"><em>add_gene_name_column.pl</em></a> script.</li>
+<li><em>perlpath</em> - the path to the perl executable to use to run
+<a class="reference internal" href="#add-gene-name-column-perldoc"><em>add_gene_name_column.pl</em></a>.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>The script uses <a class="reference external" href="http://docs.python.org/library/subprocess.html#subprocess.Popen" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">subprocess.Popen</span></tt></a> to call an external
+run of <a class="reference internal" href="#add-gene-name-column-perldoc"><em>add_gene_name_column.pl</em></a>.
+<a class="reference internal" href="#add-gene-name-column-perldoc"><em>add_gene_name_column.pl</em></a> uses the
+<a class="reference external" href="http://www.ensembl.org/info/docs/api/index.html">perl ensembl API</a>
+to pull species annotation information directly from ensembl. <em>species</em>
+must be a name recognised by ensembl (<a class="reference external" href="http://www.ensembl.org/info/about/species.html">this list</a> is probably a good place
+to start). Strings with spaces in must be in quotes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.run_gbg_cluster">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">run_gbg_cluster</tt><big>(</big><em>c_session</em>, <em>bam_file</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#run_gbg_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.run_gbg_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance a cluster run of gene count summarization for a bam file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c_session</strong> &#8211; a :py:class:drmaa.Session: instance for interacting with
+the cluster.</li>
+<li><strong>bam_file</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the bam to summarise</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>the job ID number of the cluster job</li>
+<li>the name of the file containing the resulting gene count summarization</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>feature_annot</em> - the path to the <a class="reference external" href="https://www.sanger.ac.uk/resources/software/gff/">gff</a> file to use for
+gene summarization.</li>
+<li><em>cmeth</em> - the method for <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> to use
+to summarize the read coutn data.</li>
+<li><em>feature</em> - the feature type in the annotation to summarise the read
+count data for.</li>
+<li><em>gbgpath</em> - the path to the <a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a> script.</li>
+<li><em>perlpath</em> - the path to the perl executable to use to run
+<a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a>.</li>
+<li><em>clustq</em> - the name of the cluster queue to submit jobs to.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>Instances a cluster run of <a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a>
+for the given bamfile. Note that this function includes SGE-specific
+job submission parameters (in fact, they&#8217;re quite possibly specific to our
+individual cluster!). Briefly, they are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>-cwd</em> - specify running the job in the current working directory</li>
+<li><em>-l local_free=20G</em> - require at least 20GB of free disk local to the
+cluster node</li>
+<li><em>-l ram=3G</em> - require at least 3GB of RAM on the node.</li>
+<li><em>-clear</em> - clear any existing cluster queue settings.</li>
+<li><em>-q &#8216;options.clustq&#8217;</em> - specify the queue to submit the job to.</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.run_gbg">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">run_gbg</tt><big>(</big><em>bam_file</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#run_gbg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.run_gbg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance a non-cluster run of gene count summarization for a bam file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bam_file</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the bam to summarise</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li><em>None</em></li>
+<li>the name of the file containing the resulting gene count summarization</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>feature_annot</em> - the path to the <a class="reference external" href="https://www.sanger.ac.uk/resources/software/gff/">gff</a> file to use for
+gene summarization.</li>
+<li><em>cmeth</em> - the method for <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> to use
+to summarize the read coutn data.</li>
+<li><em>feature</em> - the feature type in the annotation to summarise the read
+count data for.</li>
+<li><em>gbgpath</em> - the path to the <a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a> script.</li>
+<li><em>perlpath</em> - the path to the perl executable to use to run
+<a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a>.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>The script uses <a class="reference external" href="http://docs.python.org/library/subprocess.html#subprocess.Popen" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">subprocess.Popen</span></tt></a> to call an external
+run of <a class="reference internal" href="#group-by-gene-perldoc"><em>group_by_gene.pl</em></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="normalization">
+<h3>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="generic_wrapper.deseq_normalization">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">deseq_normalization</tt><big>(</big><em>data</em>, <em>samples</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#deseq_normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.deseq_normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the raw read counts using DESeq normalisation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing the raw read count
+summarization data.</li>
+<li><strong>samples</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of samples (in the order of the columns of the
+<em>data</em> array).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing the normalized read count
+summarization data.</li>
+<li>a dictionary keyed on the sample names containing the sample
+normalization factors.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The form of the normalization is taken from the <a class="reference external" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq/inst/doc/DESeq.pdf">DEseq</a>
+tool implemented in <a class="reference external" href="https://bioconductor.org/">bioconductor</a>. The <em>data</em>
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> should have columns corresponding to each sample
+in <em>samples</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.normalize_data">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">normalize_data</tt><big>(</big><em>results</em>, <em>experiment</em>, <em>all_replicates</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#normalize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.normalize_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper function to run the various normalization routines</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>results</strong> &#8211; <p>a tuple containing:</p>
+<ul>
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> with the read count summarization
+data.</li>
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing the feature names the
+read count summarization applies to (in the same order as the
+rows of the data array).</li>
+<li>a list of the samples the read counts were summarized for (in
+the same order as the columns of the data array).<blockquote>
+<div>These are output as the 0th, 1st and 3rd elements of the
+tuple from running <a class="reference internal" href="#generic_wrapper.read_expression_data" title="generic_wrapper.read_expression_data"><tt class="xref py py-func docutils literal"><span class="pre">read_expression_data()</span></tt></a> with
+<em>format=&#8221;unstruct&#8221;</em>.</div></blockquote>
+</li>
+</ul>
+</li>
+<li><strong>experiment</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; the experiment structure. This is the 1st element
+of the output tuple from
+<a class="reference internal" href="#generic_wrapper.parse_experiment_data" title="generic_wrapper.parse_experiment_data"><tt class="xref py py-func docutils literal"><span class="pre">parse_experiment_data()</span></tt></a>.</li>
+<li><strong>all_replicates</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of all the replicates in the experiment
+(2nd element in the tuple output from
+<a class="reference internal" href="#generic_wrapper.parse_experiment_data" title="generic_wrapper.parse_experiment_data"><tt class="xref py py-func docutils literal"><span class="pre">parse_experiment_data()</span></tt></a>).</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing the normalized read count
+summarization data.</li>
+<li>a dictionary keyed on the sample names containing the sample
+normalization factors.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keyword <em>norm</em>. If
+<em>options.norm=&#8217;pmrm&#8217;</em> this function calls <tt class="xref py py-func docutils literal"><span class="pre">pmrm_normalization()</span></tt>, if
+<em>options.norm=&#8217;deseq&#8217;</em> this function calls <a class="reference internal" href="#generic_wrapper.deseq_normalization" title="generic_wrapper.deseq_normalization"><tt class="xref py py-func docutils literal"><span class="pre">deseq_normalization()</span></tt></a>, if
+<em>options.norm=&#8217;none&#8217;</em> no normalization is performed, if
+<em>options.norm=&#8217;package:&lt;detoolname&gt;&#8217;</em> then no normalization is performed
+here but the DE tool Rscript normalization will be applied further in the
+processing. The <em>options</em> instance must contain the keywords appropriate
+for the function being called.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.parseFlagstatOut">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">parseFlagstatOut</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#parseFlagstatOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.parseFlagstatOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>parse the samtools flagstat output for the total number of reads</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the output from samtools flagstat</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the number of million reads counted by samtools flagstat</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.run_flagstat">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">run_flagstat</tt><big>(</big><em>bam_file</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#run_flagstat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.run_flagstat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance local run of samtools flagstat for a bam file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bam_file</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the bam to summarise</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>the job ID number of the cluster job</li>
+<li>the name of the file containing the resulting flagstat output</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>samtoolspath</em> - the path to the samtools executable.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>The script uses <a class="reference external" href="http://docs.python.org/library/subprocess.html#subprocess.Popen" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">subprocess.Popen</span></tt></a> to call an external
+run of samtools flagstat.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.run_flagstat_cluster">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">run_flagstat_cluster</tt><big>(</big><em>c_session</em>, <em>bam_file</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#run_flagstat_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.run_flagstat_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance a cluster run of samtools flagstat for a bam file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c_session</strong> &#8211; a :py:class:drmaa.Session: instance for interacting with
+the cluster.</li>
+<li><strong>bam_file</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the bam to summarise</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>the job ID number of the cluster job</li>
+<li>the name of the file containing the resulting flagstat output</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>samtoolspath</em> - the path to the samtools executable.</li>
+<li><em>clustq</em> - the name of the cluster queue to submit jobs to.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>Note that this function includes a SGE-specific job submission parameter
+(in fact, they&#8217;re quite possibly specific to our individual cluster!).
+Briefly, they are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>-cwd</em> - specify running the job in the current working directory</li>
+<li><em>-clear</em> - clear any existing cluster queue settings.</li>
+<li><em>-q &#8216;options.clustq&#8217;</em> - specify the queue to submit the job to.</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="interface-to-r">
+<span id="genwrap-rinterface"></span><h3>Interface to R<a class="headerlink" href="#interface-to-r" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="generic_wrapper.write_R_data_file">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">write_R_data_file</tt><big>(</big><em>results</em>, <em>experiment</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#write_R_data_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.write_R_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes text files with data for the tool Rscript routines</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>results</strong> &#8211; <p>a tuple containing:</p>
+<ul>
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> with the read count summarization
+data.</li>
+<li>a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing the feature names the
+read count summarization applies to (in the same order as the
+rows of the data array).</li>
+<li>a list of the samples the read counts were summarized for (in
+the same order as the columns of the data array).<blockquote>
+<div>These are output as the 0th, 1st and 3rd elements of the
+tuple from running <a class="reference internal" href="#generic_wrapper.read_expression_data" title="generic_wrapper.read_expression_data"><tt class="xref py py-func docutils literal"><span class="pre">read_expression_data()</span></tt></a> with
+<em>format=&#8221;unstruct&#8221;</em>.</div></blockquote>
+</li>
+</ul>
+</li>
+<li><strong>experiment</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; the experiment structure. This is the 1st element
+of the output tuple from
+<a class="reference internal" href="#generic_wrapper.parse_experiment_data" title="generic_wrapper.parse_experiment_data"><tt class="xref py py-func docutils literal"><span class="pre">parse_experiment_data()</span></tt></a>.</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>the filename of the tsv format text data file that the Rscripts
+read as the expression data for differential expression.</li>
+<li>the filename of the tsv format text data file that the Rscripts
+read as the phenoData for differential expression.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This data is used by R to contruct expressionSet objects. For details on
+the file format see:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="http://rss.acs.unt.edu/Rdoc/library/Biobase/html/readExpressionSet.html">http://rss.acs.unt.edu/Rdoc/library/Biobase/html/readExpressionSet.html</a></li>
+<li><a class="reference external" href="http://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html">http://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html</a></li>
+</ul>
+</div></blockquote>
+<p>Basically, we need first need a file with the first column as the feature
+names, then columns for each sample. A header line can contain the column
+names. The input &#8216;results&#8217; is a tuple of</p>
+<blockquote>
+<div>results = (data, features, [samples])</div></blockquote>
+<p>samples here is optional.</p>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.runRDE">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">runRDE</tt><big>(</big><em>rexpfile</em>, <em>rphefile</em>, <em>options</em>, <em>fileout=None</em>, <em>runAGNC=True</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#runRDE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.runRDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>runs an R-based differential expression analysis for a set of input data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rexpfile</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the tsv-format text file for the R
+tool to read. This is the first element of the tuple
+output from <a class="reference internal" href="#generic_wrapper.write_R_data_file" title="generic_wrapper.write_R_data_file"><tt class="xref py py-func docutils literal"><span class="pre">write_R_data_file()</span></tt></a>.</li>
+<li><strong>rphefile</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the tsv-format text file for the R
+tool to read. This is the second element of the tuple
+output from <a class="reference internal" href="#generic_wrapper.write_R_data_file" title="generic_wrapper.write_R_data_file"><tt class="xref py py-func docutils literal"><span class="pre">write_R_data_file()</span></tt></a>.</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+<li><strong>fileout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; optional output filename to give to the R tool. If not
+specified this defaults to the value storred in
+<em>options.outfile</em>.</li>
+<li><strong>runAGNC</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; toggle running <a class="reference internal" href="#generic_wrapper.run_agnc" title="generic_wrapper.run_agnc"><tt class="xref py py-func docutils literal"><span class="pre">run_agnc()</span></tt></a> on the output data.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the filename of the output DE calls from the R tool.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>script_file</em> - the filename of the Rscript to run on the data.</li>
+<li><em>norm</em> - the normalization toggle for the data.</li>
+<li><em>rpath</em> - the path to the Rscript executable to use to run
+<em>script_file</em>.</li>
+<li><em>outfile</em> - filename for the Rscript to write its output to.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em> - the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>keep_tmpdir</em> - toggle whether to keep or clean-up the temp dir.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>The script uses <a class="reference external" href="http://docs.python.org/library/subprocess.html#subprocess.Popen" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">subprocess.Popen</span></tt></a> to call an external
+run of <a class="reference external" href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/Rscript.html">Rscript</a>
+that runs a DE tool on the data. This will get executed ont he cluster.
+Optionally, this function calls <a class="reference internal" href="#generic_wrapper.run_agnc" title="generic_wrapper.run_agnc"><tt class="xref py py-func docutils literal"><span class="pre">run_agnc()</span></tt></a> to annotate the returned
+output data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="general-housekeeping">
+<h3>General housekeeping<a class="headerlink" href="#general-housekeeping" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="generic_wrapper.concatSqliteFiles">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">concatSqliteFiles</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#concatSqliteFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.concatSqliteFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenates many sqlite files with the same schema</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the output filename for the concatenated sqlite database.</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>outfile</em> - the output filename for the final file.</li>
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to search for <em>.db</em> files in.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>This function takes in multiple sqlite database files with the same
+structure and concatenates them into a single output database. It assumes
+that the intermediaty database files are located in the path listed in
+<em>options.tmpdir</em> and also assumes they have the unique extension <em>.db</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.monitorDrmaaJobs">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">monitorDrmaaJobs</tt><big>(</big><em>c_session</em>, <em>joblist</em>, <em>filelist</em>, <em>prefix</em>, <em>options</em>, <em>delo=True</em>, <em>dele=True</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#monitorDrmaaJobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.monitorDrmaaJobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>monitor a list of cluster jobs that have been submitted via drmaa</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c_session</strong> &#8211; a :py:class:drmaa.Session: instance for interacting with
+the cluster.</li>
+<li><strong>joblist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of cluster job IDs to monitor.</li>
+<li><strong>filelist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of the files to expect from sucessful
+completion of each monitored job.</li>
+<li><strong>prefix</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the cluster output and error file prefix to look for.</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+<li><strong>delo</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; toggle deletion of the cluster output file on job
+completion.</li>
+<li><strong>dele</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; toggle deletion of the cluster error file on job
+completion.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a tuple containing:</p>
+<ul class="simple">
+<li>A dictionary keyed on the job ID giving the completion status of each
+monitored job.</li>
+<li>the number of jobs that completed successfully</li>
+<li>the number of jobs that failed to complete successfully.</li>
+<li>the input (possibly modified) <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>keep_tmpdir</em> - flag to keep or delete the tmpdir at the end of the
+script run.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>At the moment <em>filelist</em> si limited to one file per job and so this list
+must have the same length and be in the same order as <em>joblist</em>. As well as
+monitoring the jobs as they run, and looking for the expected output files,
+the script also looks for the cluster output files. They are expected to
+have the forms:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>&lt;prefix&gt;.o&lt;jobid&gt;</em> - cluster output log.</li>
+<li><em>&lt;prefix&gt;.e&lt;jobid&gt;</em> - cluster error log.</li>
+</ul>
+</div></blockquote>
+<p>If any of the runs fail, <em>options.keep_tmpdir</em> will be overwritten to
+<strong>True</strong> to ensure all failing cluster log files are kept.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.results2sqlite">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">results2sqlite</tt><big>(</big><em>features</em>, <em>results_files</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#results2sqlite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.results2sqlite" title="Permalink to this definition">¶</a></dt>
+<dd><p>converts the text output from n bootstrap runs into one sqlite db</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>features</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of feature identified the DE has been
+calculated for.</li>
+<li><strong>results_files</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of DE output text files with a common
+format. Output from <a class="reference internal" href="#generic_wrapper.runRDE" title="generic_wrapper.runRDE"><tt class="xref py py-func docutils literal"><span class="pre">runRDE()</span></tt></a>.</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the filename of the resulting sqlite database, containing the
+results from all the files listed in results_files.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>This function takes the results from multiple DE textfiles and concatenates
+them into a single sqlite database that is written to the same directory as
+the input file. In this case, this should be the path given by
+<em>options.tmpdir</em> passed to <a class="reference internal" href="#generic_wrapper.runRDE" title="generic_wrapper.runRDE"><tt class="xref py py-func docutils literal"><span class="pre">runRDE()</span></tt></a>. The database structure is
+described <a class="reference internal" href="#genwrapout"><em>here</em></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_wrapper.writeCheckpoint">
+<tt class="descclassname">generic_wrapper.</tt><tt class="descname">writeCheckpoint</tt><big>(</big><em>update</em>, <em>options</em>, <em>checkpointdata=None</em><big>)</big><a class="reference internal" href="_modules/generic_wrapper.html#writeCheckpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_wrapper.writeCheckpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>record restart/checkpointing information</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>update</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; dictionary of run data and results to update/store in a
+cPickle file.</li>
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+<li><strong>checkpointdata</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; a pre-existing dictionary of results to update
+with the unformation in <em>update</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>options</em> instance must contain the keywords:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>log</em> - filename of the the log file to write to.</li>
+<li><em>tmpdir</em>- the temporary directory to write <em>restart.pkl</em> to.</li>
+<li><em>verbose</em> - boolean toggle for verbose logging.</li>
+</ul>
+</div></blockquote>
+<p>uses <tt class="xref py py-class docutils literal"><span class="pre">cPickle.dump</span></tt>  to write a file called <em>restart.pkl</em> to
+<em>options.tmpdir</em>. This is used by the script to restart a failed or halted
+run if the <a class="reference internal" href="#cmdoption--restart"><em class="xref std std-option">--restart</em></a> option is provided to the script.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="grid-launcher-de-pl">
+<span id="grid-launcher-de-perldoc"></span><h2>grid_launcher_DE.pl<a class="headerlink" href="#grid-launcher-de-pl" title="Permalink to this headline">¶</a></h2>
+<p>This is a wrapper script that divides gene counts into small chunks (default
+30 genes each) and runs DE scripts on the cluster, using DRMAA. The results are
+then aggregated into one file:</p>
+<div class="highlight-python"><pre>grid_launcher_DE.pl -script=./one_bootstrap_ET93.pl -logdir=./boot_output -outfile=boot_result.tsv -options nboot=100000
+grid_launcher_DE.pl -script=./one_permutest.pl -logdir=./perm_output -outfile=perm_result.tsv</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-script</cite> - File name (with absolute path) containing the script to run DE. The script should have two mandatory options, <em>&lt;-infile&gt;</em> and <em>&lt;-outfile&gt;</em> and any other additional options. Input file is a chunk of gene counts in individual replicates and both conditions. There are three lines per each gene: gene name, counts for condition one (tab-delimited) and counts for conditions two. Such file is created by this script and passed on to the DE script. Output file countains resulting DE calles. There should be at least five tab-delimited columns in it: gene name, log2 fold change, p-value, mean of condition 1, mean of condition 2. Individual output files are aggregated into the final output file. Any additional parameters can be included. These are passed on by <em>&lt;-options&gt;</em> option. DE scripts available at this moment are <a class="reference internal" href="#one-bootstrap-et93-perldoc"><em>one_bootstrap_ET93.pl</em></a> and <a class="reference internal" href="#one-permutest-perldoc"><em>one_permutest.pl</em></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-logdir</cite> - Path to the directory where all intermediate files are stored.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Aggregated output file containing DE results.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-batchsize</cite> - Number of genes in one batch. (Default: 30).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-options</cite> - All other options required by the DE script, for example, number if iterations. See synopsis for an example.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="grid-launcher-powertest-cuffdiff-pl">
+<span id="grid-launcher-powertest-cuffdiff-perldoc"></span><h2>grid_launcher_powertest_cuffdiff.pl<a class="headerlink" href="#grid-launcher-powertest-cuffdiff-pl" title="Permalink to this headline">¶</a></h2>
+<p>This script launches cuffdiff power tests on the cluster. Cuffdiff is run
+<em>&lt;nsim&gt;</em> times for increasing number of replicates, starting from 2 and
+ending at <em>&lt;maxn&gt;</em>. Fold changes and p-value is calculated for each gene, for
+the given number of replicates across all simulations. These p-values can be
+later used to compute power of the test as a function of number of replicates:</p>
+<div class="highlight-python"><pre>grid_launcher_powertest_cuffdiff.pl -datapath $g/mapping/genome_biol_reps -annotation Saccharomyces_cerevisiae.EF4.68.gtf -genome Scerevisiae68_ERCC92.fasta -genlist genlist.tsv -nsim=30 -maxn=40 -cuffdiff_script=./run_cuffdiff.pl</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-cuffdiff_script</cite> - File name (with absolute path) containing the script <a class="reference internal" href="DEtools.html#run-cuffdiff-perldoc"><em>run_cuffdiff.pl</em></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-datapath</cite> - Path to the data directory of the experiment. Each sub-directory in this will be treated as a separate condition in the experiment (with the name of the condition matching the name of the directory), and each .bam file in each directory is a replicate for that condition.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-annotation</cite> - Path to the .gff feature annotation file for the data. This file should match the feature you are counting the RNA-Seq expression for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-genome</cite> - Path to the FASTA file with reference genome. This is used by cuffdiff to run its bias detection and correction algorithm which can significantly improve accuracy of transcript abundance estimates. You should have write access to the directory with this file as cufflinks will attempt to write an index file there. It might be a good idea to copy genome file (or a link) into your local directory.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - Path to the file containing a list of all genes of interest. It can contain multiple columns, the first column should contain (case-insensitive) gene names.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-maxn</cite> - Maximum number of replicates to consider. The scrip will iterate the DE test from 2 replicates up to this number. It should be smaller than the total number of replicates available!</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-nsim</cite> - Number of bootstrap runs for the given number of replicates. Median p-values will be calculated over these runs. The default value is 30.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-cuffdir</cite> - Path to a directory where all cuffdiff output files will be stored. It will be divided into subdirectories for each number of replicates and each iteration. These are all intermediate files, so they can be deleted when you are satisfied with the result.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-randcond</cite> - If specified, cuffdiff will be performed on randomly selected replicates from the same condition, defined here.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-queue</cite> - Cluster queue name or names (comma-delimited).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="grid-launcher-powertest-pl">
+<span id="grid-launcher-powertest-perldoc"></span><h2>grid_launcher_powertest.pl<a class="headerlink" href="#grid-launcher-powertest-pl" title="Permalink to this headline">¶</a></h2>
+<p>Grid launcher for power tests. This script launches differential expression
+power tests on the cluster. The DE test of choice (see <a class="reference internal" href="#simple-de-test-perldoc"><em>simple_de_test.pl</em></a>
+for details) is run <em>&lt;nsim&gt;</em> times for increasing number of replicates,
+starting from 2 and ending at <em>&lt;maxn&gt;</em>. P-values and fold changes are stored
+in sqlite databases, to be later processed by <a class="reference internal" href="#combine-bs-pvalues-perldoc"><em>combine_bs_pvalues.pl</em></a>
+and <a class="reference internal" href="DE_tool_comparison.html#make-powerstats-db-perldoc"><em>make_powerstats_db.pl</em></a>. Note: this
+script is for simple tests (t-test, log t-test, MW). It does the same job
+as <a class="reference internal" href="#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a> does for tools like
+<em>edgeR</em> or <em>DEseq</em>. Requires script <a class="reference internal" href="#one-powertest-simple-perldoc"><em>one_powertest_simple.pl</em></a>:</p>
+<div class="highlight-python"><pre>grid_launcher_powertest.pl -test=st
+grid_launcher_powertest.pl -test=lt -nsim=1000 -logdir=./lt_test -options norm=deseq</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-script</cite> - File name (with absolute path) containing the script <a class="reference internal" href="#one-powertest-simple-perldoc"><em>one_powertest_simple.pl</em></a>. This is a wrapper around the actual DE test script C&lt;simple_de_test.pl&gt;. If not specified, the dafult location, <em>&lt;./scripts/one_powertest_simple.pl&gt;</em>, will be used.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-logdir</cite> - Path to the directory where all STDOUT and STDERR files from individual cluster jobs are stored. (Default: <em>&lt;de_tests_logs&gt;</em>).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-dbdir</cite> - Path to the directory where all results are saved. These are Sqlite databases, one file per number of replicates. (Default: <em>&lt;de_tests_db&gt;</em>).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-test=I&lt;[t|lt|st|mw|ks]&gt;</cite> - Type of differential expression test.</p>
+<ul class="simple">
+<li>t - standard t-test for two samples with identical variances</li>
+<li>lt - logarithmic t-test using approximately normal statistic Z = (log m2 - log m1) / sqrt(((s1/m1)**2)/n1 + ((s2/m2)**2)/n2), where m1, m2 are sample means and s1, s2 are sample standard deviations</li>
+<li>st - shrinkage variance test of <a class="reference external" href="http://www.degruyter.com/view/j/sagmb.2007.6.1/sagmb.2007.6.1.1252/sagmb.2007.6.1.1252.xml">Opgen-Rhein and Strimmer (2007)</a></li>
+<li>mw - Mann-Whitney test</li>
+<li>ks - Kolmogorov-Smirnov test; <strong>warning</strong> - KS test does not work properly for discrete data!</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-maxn</cite> - Maximum number of replicates to consider. The scrip will iterate the DE test from 2 replicates up to this number. It should be smaller than the total number of replicates available!</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-nsim</cite> - Number of bootstrap runs for the given number of replicates. Median p-values will be calculated over these runs. (Default: 30).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-spike</cite> - If specified, spike-ins will added to existing genes and spike-in-clean replicates will be selected.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-norm</cite> - Normalization to be used (<em>deseq</em>, <em>totcountm</em>, <em>spikein</em>). (Default: <em>deseq</em>).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first">-options` - Any additional options passed to the executed script (see Synopsis for usage).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first">-queue` - Cluster queue name(s), comma-delimited.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first">-randcond` - If specified, test will be performed on randomly selected replicates from the same condition, defined here.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-help</cite> - Brief help.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first last"><cite>-man</cite> - Full manpage of program.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="group-by-gene-pl">
+<span id="group-by-gene-perldoc"></span><h2>group_by_gene.pl<a class="headerlink" href="#group-by-gene-pl" title="Permalink to this headline">¶</a></h2>
+<p>Essentially, this script is a wrapper for <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a>,
+but makes it useable with BAM files. <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a>
+only works with SAM files sorted by readID
+whereas most other utilities require BAM files sorted by chromosomal position.
+This script takes a BAM file converts it into an appropriately sorted SAM file
+and runs <a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a>
+on it. As SAM files can be pretty large and are only
+required temporarily here, the SAM file is stored on the TMPDIR path and
+deleted. Thereby, saving precious GPFS disk space. This behaviour can be c
+ontrolled with the <em>&lt;&#8211;local|&#8211;no-local&gt;</em> switch.</p>
+<p><a class="reference external" href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">htseq-count</a> and
+<a class="reference external" href="http://www.htslib.org/">samtools</a> are required and must be in the default paths or
+provided with the <em>&#8211;samtools</em> and <em>&#8211;htseq</em> arguments.The script is optimised for
+the cluster so use the <em>&lt;ram&gt;</em> and <em>&lt;local_free&gt; I&lt;SGE&gt;</em> options to ensure the
+jobs don&#8217;t run out of local disk space nor RAM:</p>
+<div class="highlight-python"><pre>qsub -q 64bit-pri.q -l ram=4G -l local_free=70G group_by_gene.pl --bam my.bam --gtf my.gtf --out my.out</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;bam</cite> - Input BAM file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;gtf</cite> - Input GTF file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;tool</cite> - Select which tool to use for sorting (samtools or picard). [default: samtools]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;method</cite> - Specify which method to use for aggregating reads to genes. [default: union]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;feature</cite> - Specify which feature to aggregate read on. [default: gene_id]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;out</cite> - Output filename. [default: gene.out]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;samtools</cite> - Give path to samtools executable [default: /sw/samtools-0.1.18/samtools]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;htseq</cite> - Give path to samtools executable [default: /sw/bin/htseq-count]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;local|&#8211;no-local</cite> - Toggle whether to use /local for tmp files, otherwise use current dir. [default &#8211;local]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default:none]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default:none]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;version</cite> - Print version info and exit</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="make-cuffdiff-db-pl">
+<span id="make-cuffdiff-db-perldoc"></span><h2>make_cuffdiff_db.pl<a class="headerlink" href="#make-cuffdiff-db-pl" title="Permalink to this headline">¶</a></h2>
+<p>Creates databases from cuffdiff bootstrap results. You need to run
+<a class="reference internal" href="#grid-launcher-powertest-cuffdiff-perldoc"><em>grid_launcher_powertest_cuffdiff.pl</em></a>
+first:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">make_cuffdiff_db</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">cuffdir</span><span class="o">=</span><span class="n">cuffdiff_powertests</span> <span class="o">-</span><span class="n">dbdir</span><span class="o">=</span><span class="n">de_tests_db</span> <span class="o">-</span><span class="n">genlist</span><span class="o">=</span><span class="n">genes</span><span class="o">.</span><span class="n">lst</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-cuffdir</cite> - Path to the directory where cuffdiff bootstrap results are stored.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-dbdir</cite> - Path to the directory where all results are saved. These are Sqlite databases, one file per number of replicates.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-genlist</cite> - File with gene names in the first column.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-sig&gt;=[p|q]</cite> - Whether to use p-value or q-value from the cuffdiff&#8217;s output. Default is C&lt;p&gt;.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="one-bootstrap-et93-pl">
+<span id="one-bootstrap-et93-perldoc"></span><h2>one_bootstrap_ET93.pl<a class="headerlink" href="#one-bootstrap-et93-pl" title="Permalink to this headline">¶</a></h2>
+<p>Bootstrap test for two samples, to be run by grid launcher. Following
+<a class="reference external" href="http://www.hms.harvard.edu/bss/neuro/bornlab/nb204/statistics/bootstrap.pdf">Efron &amp; Tibshirani (1993), &#8220;An introduction to the bootstrap&#8221;, p.220-224</a>.
+To be used by <a class="reference internal" href="#grid-launcher-de-perldoc"><em>grid_launcher_DE.pl</em></a> and it is not
+supposed to be ran on its own.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-infile</cite> - Name of the input file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Name of the output file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-nboot</cite> - Number of bootstraps. The default value is 5000000.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="one-bs-pvalue-pl">
+<span id="one-bs-pvalue-perldoc"></span><h2>one_bs_pvalue.pl<a class="headerlink" href="#one-bs-pvalue-pl" title="Permalink to this headline">¶</a></h2>
+<p>Combines bootstrap results. To be used by
+<a class="reference internal" href="#combine-bs-pvalues-perldoc"><em>combine_bs_pvalues.pl</em></a>. This script is not
+supposed to be run directly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-dbfile</cite> - Database file to process.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Output file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-logit</cite> - If this option is specified, log2  will be calculated of all fold-changes. However, we expect .db files to contain log2-fold-changes, so this is probably not necessary.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="one-permutest-pl">
+<span id="one-permutest-perldoc"></span><h2>one_permutest.pl<a class="headerlink" href="#one-permutest-pl" title="Permalink to this headline">¶</a></h2>
+<p>Permutation test for two samples. To be used by <a class="reference internal" href="#grid-launcher-de-perldoc"><em>grid_launcher_DE.pl</em></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-infile</cite> - Input file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outfile</cite> - Output file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-nboot</cite> - Number of bootstraps. The default number is 5000000.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="one-powertest-simple-pl">
+<span id="one-powertest-simple-perldoc"></span><h2>one_powertest_simple.pl<a class="headerlink" href="#one-powertest-simple-pl" title="Permalink to this headline">¶</a></h2>
+<p>Script to perform DE power test, used by
+<a class="reference internal" href="#grid-launcher-powertest-perldoc"><em>grid_launcher_powertest.pl</em></a>. This is
+essentially a wrapper around <a class="reference internal" href="#simple-de-test-perldoc"><em>simple_de_test.pl</em></a>.
+This script is not supposed to be ran on its own.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-test [t|lt|st|mw|ks]</cite> - Type of differential expression test.</p>
+<ul class="simple">
+<li>t - standard t-test for two samples with identical variances</li>
+<li>lt - log-ratio t-test using approximately normal statistic Z = (log m2 - log m1) / sqrt(((s1/m1)**2)/n1 + ((s2/m2)**2)/n2), where m1, m2 are sample means and s1, s2 are sample standard deviations</li>
+<li>st - shrinkage variance test of Opgen-Rhein and Strimmer (2007)</li>
+<li>mw - Mann-Whitney test</li>
+<li>ks - Kolmogorov-Smirnov test; B&lt;warning&gt; - KS test does not work properly for discrete data!</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-nrep</cite> - Number of replicates to run the test on.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-randcond</cite> - If specified, test will be performed on randomly selected replicates from the same condition, defined here.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-nsim</cite> - Number of bootstraps.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-dbfile</cite> - Name of the sqlite .db file to create.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-norm</cite> - Expression data normalization. Input expression files contain raw counts. These are normalized on the fly, using one of the following methods:</p>
+<ul class="last simple">
+<li>none - no normalization</li>
+<li>deseq - DESeq normalization (default)</li>
+<li>tmm - trimmed mean of M values normalization</li>
+<li>fpkm - approximate FPKM normalization (not identical to cuffdiff!)</li>
+<li>totcount - total count</li>
+<li>totcountm - total count with normalization factors scaled to the mean of 1</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="qsub-bootstraps-withexcludelist-sh">
+<span id="qsub-bootstraps-withexcludelist-shdoc"></span><h2>qsub_bootstraps_withexcludelist.sh<a class="headerlink" href="#qsub-bootstraps-withexcludelist-sh" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper for running multiple instances of <a class="reference internal" href="#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>
+with different numbers of bootstrap iterations in each instance, and includes
+the use of an exclusion list for excluding specific replicates from the calculations.</p>
+</div>
+<div class="section" id="qsub-bootstraps-withoutexludelist-sh">
+<span id="qsub-bootstraps-withoutexludelist-shdoc"></span><h2>qsub_bootstraps_withoutexludelist.sh<a class="headerlink" href="#qsub-bootstraps-withoutexludelist-sh" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper for running multiple instances of <a class="reference internal" href="#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>
+with different numbers of bootstrap iterations in each instance using the full
+set of replicates.</p>
+</div>
+<div class="section" id="qsub-wtfdr-bootstraps-sh">
+<span id="qsub-wtfdr-bootstraps-shdoc"></span><h2>qsub_WTfdr_bootstraps.sh<a class="headerlink" href="#qsub-wtfdr-bootstraps-sh" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper for running multiple instances of <a class="reference internal" href="#generic-wrapper-autodoc"><em>generic_wrapper.py</em></a>
+with different numbers of bootstrap iterations in each instance using just one
+condition of data. This was used to explore how well tool control their False
+Discovery Rate.</p>
+</div>
+<div class="section" id="simple-de-test-pl">
+<span id="simple-de-test-perldoc"></span><h2>simple_de_test.pl<a class="headerlink" href="#simple-de-test-pl" title="Permalink to this headline">¶</a></h2>
+<p>Simple differential expression test. Gene expression data should be stored in
+two tables, one for each condition. These can be created by the script
+<a class="reference internal" href="general.html#combine-replicates-perldoc"><em>combine_replicates.pl</em></a>. This script can
+perform a few flavours of t-test, Mann-Whitney test and Kolmogorov-Smirnov
+test. See option <em>-test</em> for details. Results are stored in a tab-delimited
+output file. Columns are:</p>
+<blockquote>
+<div><blockquote>
+<div><ul class="simple">
+<li>gene name</li>
+<li>log2 fold change</li>
+<li>p-value</li>
+<li>mean for first condition</li>
+<li>mean for second condition</li>
+</ul>
+</div></blockquote>
+<p>simple_de_test.pl -norm=deseq -clean -test=mw</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-test&gt;=I&lt;[t|lt|st|mw|ks]&gt;</cite> - Type of differential expression test.</p>
+<ul class="simple">
+<li>t - standard t-test for two samples with identical variances</li>
+<li>lt - logarithmic t-test using approximately normal statistic Z = (log m2 - log m1) / sqrt(((s1/m1)**2)/n1 + ((s2/m2)**2)/n2), where m1, m2 are sample means and s1, s2 are sample standard deviations</li>
+<li>st - shrinkage variance test of <a class="reference external" href="http://www.degruyter.com/view/j/sagmb.2007.6.1/sagmb.2007.6.1.1252/sagmb.2007.6.1.1252.xml">Opgen-Rhein and Strimmer (2007)</a></li>
+<li>mw - Mann-Whitney test</li>
+<li>ks - Kolmogorov-Smirnov test; <strong>warning</strong> - KS test does not work properly for discrete data!</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-outfile</cite> - Output file. If not defined, a default name will be build using condition names and type of test.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-norm</cite> - Expression data normalization. Input expression files contain raw counts. These are normalized on the fly, using one of the following methods:</p>
+<ul class="simple">
+<li>none - no normalization</li>
+<li>deseq - DESeq normalization (default)</li>
+<li>tmm - trimmed mean of M values normalization</li>
+<li>fpkm - approximate FPKM normalization (not identical to cuffdiff!)</li>
+<li>totcount - total count</li>
+<li>totcountm - total count with normalization factors scaled to the mean of 1</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-clean</cite> - A switch indicating that only clean replicates should be used. Clean replicates are defined in <a class="reference internal" href="modules.html#grnaseq-perlmod"><em>GRNASeq.pm</em></a> module.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-defsfile</cite> - Path to defs.dat configuration file.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first last"><cite>-randcond</cite> - If specified, test will be performed on randomly selected replicates from the same condition, defined here.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Bootstrapping DGE calls</a><ul>
+<li><a class="reference internal" href="#add-gene-name-column-pl">add_gene_name_column.pl</a></li>
+<li><a class="reference internal" href="#combine-bs-pvalues-pl">combine_bs_pvalues.pl</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-generic_wrapper">generic_wrapper.py</a><ul>
+<li><a class="reference internal" href="#the-great-rna-seq-experiment-differential-expression-tool-bootstrap-wrapper">The Great RNA-Seq Experiment Differential Expression Tool Bootstrap Wrapper</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#command-line-arguments">Command-line Arguments</a><ul>
+<li><a class="reference internal" href="#required-parameters">Required Parameters</a></li>
+<li><a class="reference internal" href="#annotation-options">Annotation options</a></li>
+<li><a class="reference internal" href="#reads-to-gene-counts-options">reads-to-gene-counts options</a></li>
+<li><a class="reference internal" href="#normalization-options">Normalization options</a></li>
+<li><a class="reference internal" href="#bootstrap-options">Bootstrap options</a></li>
+<li><a class="reference internal" href="#external-dependancies-and-environment">External Dependancies and Environment</a></li>
+<li><a class="reference internal" href="#cluster-options">Cluster options</a></li>
+<li><a class="reference internal" href="#other-options">Other options</a></li>
+<li><a class="reference internal" href="#internally-passed-options-do-not-set-these-manually">Internally-Passed options - <strong>DO NOT SET THESE MANUALLY</strong></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#output">Output</a></li>
+<li><a class="reference internal" href="#example-command-line">Example Command-line</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generic-wrapper-py-functions">generic_wrapper.py Functions:</a><ul>
+<li><a class="reference internal" href="#experiment-structure-parsing">Experiment structure parsing</a></li>
+<li><a class="reference internal" href="#id9">Bootstrapping</a></li>
+<li><a class="reference internal" href="#data-routines">Data Routines</a></li>
+<li><a class="reference internal" href="#normalization">Normalization</a></li>
+<li><a class="reference internal" href="#interface-to-r">Interface to R</a></li>
+<li><a class="reference internal" href="#general-housekeeping">General housekeeping</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#grid-launcher-de-pl">grid_launcher_DE.pl</a></li>
+<li><a class="reference internal" href="#grid-launcher-powertest-cuffdiff-pl">grid_launcher_powertest_cuffdiff.pl</a></li>
+<li><a class="reference internal" href="#grid-launcher-powertest-pl">grid_launcher_powertest.pl</a></li>
+<li><a class="reference internal" href="#group-by-gene-pl">group_by_gene.pl</a></li>
+<li><a class="reference internal" href="#make-cuffdiff-db-pl">make_cuffdiff_db.pl</a></li>
+<li><a class="reference internal" href="#one-bootstrap-et93-pl">one_bootstrap_ET93.pl</a></li>
+<li><a class="reference internal" href="#one-bs-pvalue-pl">one_bs_pvalue.pl</a></li>
+<li><a class="reference internal" href="#one-permutest-pl">one_permutest.pl</a></li>
+<li><a class="reference internal" href="#one-powertest-simple-pl">one_powertest_simple.pl</a></li>
+<li><a class="reference internal" href="#qsub-bootstraps-withexcludelist-sh">qsub_bootstraps_withexcludelist.sh</a></li>
+<li><a class="reference internal" href="#qsub-bootstraps-withoutexludelist-sh">qsub_bootstraps_withoutexludelist.sh</a></li>
+<li><a class="reference internal" href="#qsub-wtfdr-bootstraps-sh">qsub_WTfdr_bootstraps.sh</a></li>
+<li><a class="reference internal" href="#simple-de-test-pl">simple_de_test.pl</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/bootstrapping.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

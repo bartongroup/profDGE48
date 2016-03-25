@@ -1,0 +1,566 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Mapping reads and summary stats &mdash; The Great RNA-seq Experiment 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="The Great RNA-seq Experiment 2.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">The Great RNA-seq Experiment 2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mapping-reads-and-summary-stats">
+<span id="mapping"></span><h1>Mapping reads and summary stats<a class="headerlink" href="#mapping-reads-and-summary-stats" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="build-pileup-pl">
+<span id="build-pileup-perldoc"></span><h1>build_pileup.pl<a class="headerlink" href="#build-pileup-pl" title="Permalink to this headline">¶</a></h1>
+<p>Build aggregated pileup from all BAM files:</p>
+<div class="highlight-python"><pre>build_pileup.pl -datapath=./mydata</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-datapath|d</cite> - Path to the data directory of the experiment. Each sub-directory in this will be treated as a separate condition in the experiment (with the name of the condition matching the name of the directory), and each .bam file in each directory is a replicate for that condition.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-outpath|p</cite> - Path to the output directory.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-conditions|c</cite> - Comma-separated list of conditions. (Default: <em>WT,Snf2</em>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="combine-replicates-pl">
+<span id="combine-replicates-perldoc"></span><h1>combine_replicates.pl<a class="headerlink" href="#combine-replicates-pl" title="Permalink to this headline">¶</a></h1>
+<p>Combine counts from individual condition/replicate/lane files into multicolumn
+files. Genes in all files B&lt;must&gt; be in the same order. <strong>Warning: replicate
+and lane number and file name templates hardcoded in the script (sorry...)</strong>.</p>
+</div>
+<div class="section" id="concat-fastq-pl">
+<span id="concat-fastq-perldoc"></span><h1>concat_fastq.pl<a class="headerlink" href="#concat-fastq-pl" title="Permalink to this headline">¶</a></h1>
+<p>This script takes the multilane, technical replicate data (as produced by
+GenePool) and combines it into biological replicate fastq files. It assumes
+the source directory has 96 subdirs (numbered 1-96) and that the first 48
+are &#8216;Snf2&#8217; samples and the second 48 are &#8216;WT&#8217; samples. It also assumes that
+in each of the number subdirs there are seven technical replicate files,
+which need combining into one, biological, replicate.</p>
+<p>Output files are put in the destination directory under &#8216;Snf2&#8217; and &#8216;WT&#8217;
+subdirs. Filenames are derived from the biological replicate number,
+sample and MID. e.g. <em>WT_rep06_MID02_allLanes.fastq</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">concat_fastq</span><span class="o">.</span><span class="n">pl</span> <span class="o">--</span><span class="n">src</span><span class="o">-</span><span class="n">path</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">dest</span><span class="o">-</span><span class="n">path</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">--</span><span class="n">version</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="o">|--</span><span class="n">no</span><span class="o">-</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="o">|--</span><span class="n">no</span><span class="o">-</span><span class="n">debug</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">man</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;src-path</cite> - Source directory with all replicate data. Must have numeric subdirs with fastq files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;dest-path</cite> - Destination directory for saving concatenated fastq files</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;version</cite> - Report version info and exit</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default:none]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default:none]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="count-fastq-reads-lanes-pl">
+<span id="count-fastq-reads-lanes-perldoc"></span><h1>count_fastq_reads_lanes.pl<a class="headerlink" href="#count-fastq-reads-lanes-pl" title="Permalink to this headline">¶</a></h1>
+<p>Counts reads in each condition, replicate and lane. Creates a file
+<em>all_readcount_lane.dat</em> with counts. Requires directory with subdirs, one
+per biological sample, containing lean FASTQ files. There are some numbers and
+names hardcoded for our data, so this simple script needs redoing for other
+data sets:</p>
+<div class="highlight-python"><pre>count_fastq_reads_lanes.pl -dir=/dir/with/fastq/files</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-dir</cite> - Directory with FASTQ files. File names should be in a specific format, so this very simple script really works only with our experiment.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="count-fastq-reads-pl">
+<span id="count-fastq-reads-perldoc"></span><h1>count_fastq_reads.pl<a class="headerlink" href="#count-fastq-reads-pl" title="Permalink to this headline">¶</a></h1>
+<p>Counts reads in all fastq files and store results in output files
+<em>&lt;cond&gt;_readcount.dat</em>.There are some numbers and names hardcoded for our
+data, so this simple script needs redoing for other data sets:</p>
+<div class="highlight-python"><pre>count_fastq_reads.pl -dir=/dir/with/fastq/files</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-dir</cite> - Directory with FASTQ files. File names should be in a specific format, so this very simple script really works only with our experiment.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="ena-sample-mapping-pl">
+<span id="ena-sample-mapping-perldoc"></span><h1>ENA_sample_mapping.pl<a class="headerlink" href="#ena-sample-mapping-pl" title="Permalink to this headline">¶</a></h1>
+<p>The metadata associated with the yeast RNAseq data at ENA is not informative
+enough to replicate our sample names. This script generates a more meaningful
+mapping for uploading to figshare:</p>
+<div class="highlight-python"><pre>ENA_sample_mapping.pl [--in &lt;path&gt;] [--url &lt;ENA url&gt;] [--out &lt;file&gt;] [--verbose|--no-verbose] [--version] [--debug|--no-debug] [--man] [--help]</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;in</cite> - Input path to raw fastq files. [default: /cluster/gjb_lab/cdr/GRNAseq/raw/raw_reads]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;url</cite> - URL generated by ENA for downloading sample metadata file. Only specify if you know what you&#8217;re doing.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;out</cite> - Output filename. [default: sample_mapping.tsv]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;version</cite> - Report version information and exit</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default:none]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default:none]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pileup-stats-pl">
+<span id="pileup-stats-perldoc"></span><h1>pileup_stats.pl<a class="headerlink" href="#pileup-stats-pl" title="Permalink to this headline">¶</a></h1>
+<p>Simple statistic on pileup files</p>
+</div>
+<div class="section" id="pileup-var-pl">
+<span id="pileup-var-perldoc"></span><h1>pileup_var.pl<a class="headerlink" href="#pileup-var-pl" title="Permalink to this headline">¶</a></h1>
+<p>Create files with pileup statistic for each gene: one file with mean and one
+with standard deviation. There is one gene per line, and each line contains
+gene name and 48 numbers for all replicates. Requires pileup files for each
+chromosome, created with <a class="reference internal" href="#build-pileup-perldoc"><em>build_pileup.pl</em></a>.</p>
+</div>
+<div class="section" id="run-alignments-pl">
+<span id="run-alignments-perldoc"></span><h1>run_alignments.pl<a class="headerlink" href="#run-alignments-pl" title="Permalink to this headline">¶</a></h1>
+<p>This scripts takes all 96 replicates from the yeast snf2 mutant experiment
+and aligns the raw Fastq reads to the genome with <a class="reference external" href="https://ccb.jhu.edu/software/tophat/index.shtml">Tophat</a>.
+The <em>&#8211;src</em>  directory must have 96 subdirs numbered 1-96, where 1-48 are the snf2
+mutants and 49-96 are the wild-types.</p>
+<p>The <em>&#8211;dest</em> directory must have the <em>Snf2/</em> and <em>WT/</em> subdirs where the
+<a class="reference external" href="https://ccb.jhu.edu/software/tophat/index.shtml">Tophat</a> runs will be saved:</p>
+<div class="highlight-python"><pre>run_alignments.pl --src &lt;dir&gt; --dest &lt;dir&gt; [--genome &lt;pathprefix&gt;] [--verbose|--no-verbose] [--debug|--no-debug] [--man] [--help]</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;src</cite> - Source path of subdirs with fastq files</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;dest</cite> - Destination path for output.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;genome</cite> - Path and to bowtie2 genome index [default: /db/bowtie2/Scerevisiae68_ERCC92]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default:none]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default:none]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="run-biological-alignments-pl">
+<span id="run-biological-alignments-perldoc"></span><h1>run_biological_alignments.pl<a class="headerlink" href="#run-biological-alignments-pl" title="Permalink to this headline">¶</a></h1>
+<p>Given a set of combined biological replicate fastq files run
+<a class="reference external" href="https://ccb.jhu.edu/software/tophat/index.shtml">Tophat</a> on them. Use this
+to run <a class="reference external" href="https://ccb.jhu.edu/software/tophat/index.shtml">Tophat</a> over the set
+of fastq files where technical replicates have been combined into biological
+replicates. For this experiment it means 48 replicates each of WT and
+Snfs2 samples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">run_biological_alignments</span><span class="o">.</span><span class="n">pl</span> <span class="o">--</span><span class="n">src</span><span class="o">-</span><span class="n">path</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">dest</span><span class="o">-</span><span class="n">path</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="o">|--</span><span class="n">no</span><span class="o">-</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">version</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="o">|--</span><span class="n">no</span><span class="o">-</span><span class="n">debug</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">man</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;src-path</cite> - Path containing &#8216;WT&#8217; and &#8216;Snf2&#8217; subdirs with fastq files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;dest-path</cite> - Path containing &#8216;WT&#8217; and &#8216;Snf2&#8217; subdirs for saving tophat output.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;version</cite> - Report version information and exit</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default:none]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default:none]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="run-cufflinks-pl">
+<span id="run-cufflinks-perldoc"></span><h1>run_cufflinks.pl<a class="headerlink" href="#run-cufflinks-pl" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper around <a class="reference external" href="http://cole-trapnell-lab.github.io/cufflinks/">cufflinks</a>:</p>
+<div class="highlight-python"><pre>run_cufflinks.pl -datapath=$grnas/mapping/genome_biol_reps/ -fpkmpath=$grnas/analysis/cufflinks_counts -genome=Scerevisiae68_ERCC92.fasta -annotation=Saccharomyces_cerevisiae.EF4.68.gtf</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-datapath|d</cite> - Path to the data directory of the experiment. Each sub-directory in this will be treated as a separate condition in the experiment (with the name of the condition matching the name of the directory), and each <em>.bam</em> file in each directory is a replicate for that condition.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-fpkmpath|f</cite> - Path to output FPKM files. Subdirectories for each condition and each replicate will be created here. Symbolic links to individual FPKM files will be created in this directory.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-annotation|a</cite> - Path to the <em>.gff</em> feature annotation file for the data. This file should match features you are counting the RNA-Seq expression for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-genome|g</cite> - Path to the FASTA file with the reference genome. This is used by cufflinks to run its bias detection and correction algorithm which can significantly improve accuracy of transcript abundance estimates. You should have write access to the directory with this file as cufflinks will attempt to write an index file there. It might be a good idea to copy genome file (or a link) into your local directory.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>-logdir|l</cite> - Path to the directory where standard output and standard error from cluster jobs is redirected. Default value is C&lt;./cufflinks_output&gt;.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>-conditions|c</cite> - Comma-separated list of conditions. (Default: <em>WT,Snf2</em>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-sort_and_index_bams">
+<span id="sort-and-index-bams-py"></span><span id="sort-and-index-bams-autodocs"></span><h1>sort_and_index_bams.py<a class="headerlink" href="#module-sort_and_index_bams" title="Permalink to this headline">¶</a></h1>
+<p>Given a directory, sorts and then indexes every bam file in the directory
+using the cluster.</p>
+<div class="section" id="written-by-nick-schurch">
+<h2>Written by Nick Schurch.<a class="headerlink" href="#written-by-nick-schurch" title="Permalink to this headline">¶</a></h2>
+<p>======= command line arguments =======</p>
+<dl class="docutils">
+<dt>&#8211;help|-h                - Print a basic description of the tool and its </dt>
+<dd>options to STDOUT</dd>
+</dl>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--version</span></kbd></td>
+<td><ul class="first last simple">
+<li>show program&#8217;s version number and exit</li>
+</ul>
+</td></tr>
+</tbody>
+</table>
+<p>-v|&#8211;verbose             - Turn on verbose logging.
+&#8211;tmpdir                 - The full path of the temp dir you with to use for</p>
+<blockquote>
+<div>storing intermediate files. The default location for
+this is a dir called &#8216;.temp&#8217; in the current
+directory.</div></blockquote>
+</div>
+<div class="section" id="required">
+<h2>Required<a class="headerlink" href="#required" title="Permalink to this headline">¶</a></h2>
+<p>&#8211;datapath|-d            - Path to the data directory of the experiment.</p>
+<dl class="docutils">
+<dt>&#8211;logfile|-l             - The name (inc. path) of the log file from the </dt>
+<dd>wrapper.</dd>
+</dl>
+<p>======= output =======</p>
+<p>Sorted bam file (affixed with &#8216;sorted&#8217;) and a bam file index appended with .bai</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="argument-parsing">
+<h3>Argument parsing<a class="headerlink" href="#argument-parsing" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="sort_and_index_bams.parse_required_options">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">parse_required_options</tt><big>(</big><em>options</em>, <em>optslist</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#parse_required_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.parse_required_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all required options have been specified</p>
+<p>options is an optparse options instance, optslist is a list of options, 
+each of which is a dictionary with the &#8216;group&#8217; key. If &#8216;group&#8217;==&#8217;required&#8217; 
+then its a required option. If the value of this option in the optparse
+instance is not specified, then exit the script and provide help.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sort_and_index_bams.parse_allowed_values">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">parse_allowed_values</tt><big>(</big><em>options</em>, <em>optslist</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#parse_allowed_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.parse_allowed_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all options conform to their allowed values</p>
+<p>options is an optparse options instance, optslist is a list of options, 
+each of which is a dictionary with an optional &#8216;allowed_vals&#8217; key. 
+&#8216;allowed_vals&#8217; should contain a list of the allowed values. If the 
+value of this option in the optparse instance is not in this list
+then warn the user and use the default value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sort_and_index_bams.parse_option_type">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">parse_option_type</tt><big>(</big><em>options</em>, <em>optslist</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#parse_option_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.parse_option_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all options conform to their specified types</p>
+<p>options is an optparse options instance, optslist is a list of options, 
+each of which is a dictionary with an optional &#8216;opt_type&#8217; key. 
+&#8216;opt_type&#8217; should be a string specifying the type of the option; examples
+are input_path, output_path, output_file, string, int, float. all the 
+&#8216;opt_type&#8217; values should be valid python types except the paths. If the 
+value of this option in the optparse instance is not of this type then 
+either warn the user and use the default value (if there is one) or exit 
+the script and provide help.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="program-script-and-environment-logging">
+<h3>Program, script and environment logging<a class="headerlink" href="#program-script-and-environment-logging" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="sort_and_index_bams.write_log_header">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">write_log_header</tt><big>(</big><em>log_file</em>, <em>options</em>, <em>optslist</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#write_log_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.write_log_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="sorting-bam-files">
+<h3>Sorting bam files<a class="headerlink" href="#sorting-bam-files" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="sort_and_index_bams.run_bam_sort">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">run_bam_sort</tt><big>(</big><em>c_session</em>, <em>bam_file</em>, <em>outfile</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#run_bam_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.run_bam_sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>calls a cluster run of samtools sort on a bam file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sort_and_index_bams.sort_bams">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">sort_bams</tt><big>(</big><em>files</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#sort_bams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.sort_bams" title="Permalink to this definition">¶</a></dt>
+<dd><p>this subroutine wraps the samtools sort calls</p>
+</dd></dl>
+
+</div>
+<div class="section" id="index-bam-files">
+<h3>Index bam files<a class="headerlink" href="#index-bam-files" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="sort_and_index_bams.run_bam_index">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">run_bam_index</tt><big>(</big><em>c_session</em>, <em>bam_file</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#run_bam_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.run_bam_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>calls a cluster run of samtools index on a bam file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sort_and_index_bams.index_bams">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">index_bams</tt><big>(</big><em>sorted_files</em>, <em>options</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#index_bams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.index_bams" title="Permalink to this definition">¶</a></dt>
+<dd><p>this subroutine wraps the samtools sort calls</p>
+</dd></dl>
+
+</div>
+<div class="section" id="general-housekeeping">
+<h3>General housekeeping<a class="headerlink" href="#general-housekeeping" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="sort_and_index_bams.timeAndDateStr">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">timeAndDateStr</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#timeAndDateStr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.timeAndDateStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>pretty current time and date timestring</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sort_and_index_bams.timeStr">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">timeStr</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#timeStr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.timeStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>pretty current time timestring</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sort_and_index_bams.custom_formatwarning">
+<tt class="descclassname">sort_and_index_bams.</tt><tt class="descname">custom_formatwarning</tt><big>(</big><em>message</em>, <em>category</em>, <em>filename</em>, <em>lineno</em>, <em>line</em><big>)</big><a class="reference internal" href="_modules/sort_and_index_bams.html#custom_formatwarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sort_and_index_bams.custom_formatwarning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+</div>
+<div class="section" id="summary-stats-pl">
+<span id="summary-stats-perldoc"></span><h1>summary_stats.pl<a class="headerlink" href="#summary-stats-pl" title="Permalink to this headline">¶</a></h1>
+<p>Generate summary statistics of alignment infomation. This script generates
+simple statistics on the outcome of Tophat alignments. It expects that the
+given <em>&#8211;path</em> includes subdirectories generated by tophat which include
+<em>accepted_hits.bam</em> and <em>unmapped.bam</em> files in them. Given that assumption
+the script with then run &#8216;<a class="reference external" href="http://www.htslib.org/">samtools</a> <em>flagstat</em>&#8216; on
+the BAM files to determine the number of mapped, unmapped and failed reads for
+each run. These are then reported in the output file:</p>
+<div class="highlight-python"><pre>summary_stats.pl --path &lt;path&gt; [--samtools &lt;path&gt;] [--threads &lt;num&gt;] [--out &lt;file&gt;] [--version] [--verbose|--no-verbose] [--debug|--no-debug] [--man] [--help]</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;path</cite> - Path to tophat output dirs.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;samtools</cite> - Path to samtools executeable [default: /sw/samtools-0.1.18/samtools]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;threads</cite> - Number of threads to use [default: 1]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;out</cite> - Output filename. [default: out.tsv]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;version</cite> - Output version info and exit.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default: verbose]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default: no-debug]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="unique-fastq-reads-pl">
+<span id="unique-fastq-reads-perldoc"></span><h1>unique_fastq_reads.pl<a class="headerlink" href="#unique-fastq-reads-pl" title="Permalink to this headline">¶</a></h1>
+<p>Takes a Fastq file and writes out only unique examples of reads therein.
+Keeps header and quality information for the first instance of each read:</p>
+<div class="highlight-python"><pre>unique_fastq_reads.pl --in &lt;file&gt; [--out &lt;file&gt;] [--verbose|--no-verbose] [--debug|--no-debug] [--man] [--help]</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;in</cite> - Input fastq file (can be gzipped).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;out</cite> - Output filename. [default: unique.fastq]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;verbose|&#8211;no-verbose</cite> - Toggle verbosity. [default:none]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;debug|&#8211;no-debug</cite> - Toggle debugging output. [default:none]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;help</cite> - Brief help.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>&#8211;man</cite> - Full manpage of program.</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Mapping reads and summary stats</a></li>
+<li><a class="reference internal" href="#build-pileup-pl">build_pileup.pl</a></li>
+<li><a class="reference internal" href="#combine-replicates-pl">combine_replicates.pl</a></li>
+<li><a class="reference internal" href="#concat-fastq-pl">concat_fastq.pl</a></li>
+<li><a class="reference internal" href="#count-fastq-reads-lanes-pl">count_fastq_reads_lanes.pl</a></li>
+<li><a class="reference internal" href="#count-fastq-reads-pl">count_fastq_reads.pl</a></li>
+<li><a class="reference internal" href="#ena-sample-mapping-pl">ENA_sample_mapping.pl</a></li>
+<li><a class="reference internal" href="#pileup-stats-pl">pileup_stats.pl</a></li>
+<li><a class="reference internal" href="#pileup-var-pl">pileup_var.pl</a></li>
+<li><a class="reference internal" href="#run-alignments-pl">run_alignments.pl</a></li>
+<li><a class="reference internal" href="#run-biological-alignments-pl">run_biological_alignments.pl</a></li>
+<li><a class="reference internal" href="#run-cufflinks-pl">run_cufflinks.pl</a></li>
+<li><a class="reference internal" href="#module-sort_and_index_bams">sort_and_index_bams.py</a><ul>
+<li><a class="reference internal" href="#written-by-nick-schurch">Written by Nick Schurch.</a></li>
+<li><a class="reference internal" href="#required">Required</a></li>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#argument-parsing">Argument parsing</a></li>
+<li><a class="reference internal" href="#program-script-and-environment-logging">Program, script and environment logging</a></li>
+<li><a class="reference internal" href="#sorting-bam-files">Sorting bam files</a></li>
+<li><a class="reference internal" href="#index-bam-files">Index bam files</a></li>
+<li><a class="reference internal" href="#general-housekeeping">General housekeeping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#summary-stats-pl">summary_stats.pl</a></li>
+<li><a class="reference internal" href="#unique-fastq-reads-pl">unique_fastq_reads.pl</a><ul>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mappingscripts.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">The Great RNA-seq Experiment 2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+# Description of all tests and tools.
+# 
+# name = name of the test to be displayed
+# repflie = format for bootstrap results (an FCP file) for all replicates (%d stands for replicate number). Some tools use .tsv files (created by 'combine_bs_pvalues.pl'), others use original .db files (here you need to put .tsv files)
+# fullfile = result (FCP file) for full clean replicate set (need to be created manually, using the according DEG script)
+# adjustment = multiple test adjustment used by the tool to obtain p-values (none, BH or HB)
+# FCsig = optional sign correction for fold-change (+1 or -1)
+#
+# FCP files are tab-delimited with (at least) three columns: gene id, log2 fold change and p-value.
+
+TEST bayseq
+name = baySeq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/bayseq/bayseq_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/bayseq_package_default.txt
+adjustment = bh
+FCsig = -1
+
+TEST bs
+name = bootstrap
+repfile = -
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/fullsets/WT_Snf2_deseq_clean_bs_test.tsv
+adjustment = none
+FCsig = 1
+
+TEST cuffdiff
+name = cuffdiff
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps/cuffdiff/de_cuffdiffq_rep%d.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/fullsets/cuffdiff_full.txt
+adjustment = bh
+FCsig = 1
+
+TEST degseq
+name = DEGseq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/degseqbh/degseqbh_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/degseqbh_package_default.txt
+adjustment = bh
+FCsig = 1
+
+TEST deseq1
+name = DESeq1
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/deseq/deseq_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/deseq_package_default.txt
+adjustment = bh
+FCsig = -1
+
+TEST deseq2
+name = DESeq2
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/deseq2/deseq2_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/deseq2_package_default.txt
+adjustment = bh
+FCsig = -1
+
+
+TEST ebseq
+name = EBSeq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/ebseq/ebseq_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/ebseq_package_default.txt
+adjustment = bh
+FCsig = -1
+
+TEST edger
+name = edgeR
+repfile = edgeR/edgeR_k%02d.tsv
+fullfile = edgeR_gold.txt
+adjustment = bh
+FCsig = -1
+
+TEST edgerglm
+name = edgeRGLM
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/edgeRglm/edgeRglm_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/edgeRglm_package_default.txt
+adjustment = bh
+FCsig = -1
+
+TEST limma
+name = limma
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/limma/limma_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/limma_package_default.txt
+adjustment = bh
+FCsig = -1
+
+TEST lt
+name = log t-test
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps/lt/de_lt_rep%d.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/fullsets/WT_Snf2_deseq_clean_lt_test.tsv
+adjustment = none
+FCsig = 1
+
+TEST mw
+name = Mann-Whitney
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps/mw/de_mw_rep%d.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/fullsets/WT_Snf2_deseq_clean_mw_test.tsv
+adjustment = none
+FCsig = 1
+
+TEST noiseq
+name = NOISeq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/noiseqbio/noiseqbio_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/noiseqbio_package_default.txt
+adjustment = bh
+FCsig = -1
+
+TEST perm
+name = permutation
+repfile = -
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/fullsets/WT_Snf2_deseq_clean_perm_test.tsv
+adjustment = none
+FCsig = 1
+
+TEST poissonseq
+name = PoissonSeq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/poissonseq/poissonseq_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/poissonseq_package_default.txt
+adjustment = bh
+FCsig = 1
+
+TEST samseq
+name = samSeq
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/exclude40ns/samseq/samseq_%dreps_package_default.tsv
+fullfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/R3.2.2/goldns/samseq_package_default.txt
+adjustment = bh
+FCsig = -1
+
+TEST st
+name = shrink t-test
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps/st/de_st_rep%d.tsv
+fullfile = /cluster/gjb_lab/mgierlinski/projects/grna/WT_Snf2_deseq_clean_st_test.tsv
+adjustment = none
+FCsig = 1
+
+TEST t
+name = t-test
+repfile = /cluster/gjb_lab/cdr/GRNAseq/analysis/bootstraps/t/de_t_rep%d.tsv
+fullfile = /cluster/gjb_lab/mgierlinski/projects/grna/WT_Snf2_deseq_clean_t_test.tsv
+adjustment = none
+FCsig = 1
+

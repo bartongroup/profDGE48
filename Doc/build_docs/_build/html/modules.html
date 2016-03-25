@@ -1,0 +1,683 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Perl modules &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="perl-modules">
+<span id="modules"></span><h1>Perl modules<a class="headerlink" href="#perl-modules" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="bootstrapdb-pm">
+<span id="bootstrapdb-perlmod"></span><h1>BootstrapDB.pm<a class="headerlink" href="#bootstrapdb-pm" title="Permalink to this headline">¶</a></h1>
+<p>Set of routines to create/manipulate Sqlite databases for DE bootstrap.</p>
+</div>
+<div class="section" id="cluster-pm">
+<span id="cluster-perlmod"></span><h1>Cluster.pm<a class="headerlink" href="#cluster-pm" title="Permalink to this headline">¶</a></h1>
+<p>Module to manage submissions to the cluster</p>
+</div>
+<div class="section" id="distribution-pm">
+<span id="distribution-perlmod"></span><h1>Distribution.pm<a class="headerlink" href="#distribution-pm" title="Permalink to this headline">¶</a></h1>
+<p>Set of routines for distribution testing statistics.</p>
+</div>
+<div class="section" id="getopt-pm">
+<span id="getopt-perlmod"></span><h1>GetOpt.pm<a class="headerlink" href="#getopt-pm" title="Permalink to this headline">¶</a></h1>
+<p>GetOpt addon for the scripts</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-psfile</cite> - Output postscript file.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-cond</cite> - Condition to use. In some scripts analysis can be restricted to one condition.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-rep</cite> - Replicate number.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-nonzero</cite> - Selects only data rows (genes) with at least <em>n</em> non-zero replicates.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-norm</cite> - Expression data normalization. Input expression files contain raw counts. These are normalized on the fly, using one of the following methods:</p>
+<ul class="simple">
+<li>none - no normalization</li>
+<li>deseq - DESeq normalization (default)</li>
+<li>tmm - trimmed mean of M values normalization</li>
+<li>fpkm - approximate FPKM normalization (not identical to cuffdiff!)</li>
+<li>totcount - total count</li>
+<li>totcountm - total count with normalization factors scaled to the mean of 1</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-type</cite> - Type of raw data, as encoded in the counts file name (e.g. WT_raw.tsv is &#8216;raw&#8217;). Could be &#8216;lev&#8217; for leveled data, or some other, alternative prescription.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-exclude</cite> - A list of replicates to exclude from analysis. The format of this string can be, e.g.</p>
+<ul class="simple">
+<li><em>1,3,5:</em> to exclude replicates 1, 3 and 5 from the first condition</li>
+<li><em>:1,2,3</em> to exclude replicates 1, 2 and 3 from the second condition</li>
+<li><em>1:3,4</em> to exclude replicates 1 from the first condition and 3 and 4 from the second condition</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-include</cite> - A list of replicates to include to analysis. Format as above.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-clip</cite> - Clip <em>n</em> top and n bottom replicates.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-genes</cite> - Comma-delimited list of genes.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-genlist</cite> - A file with a list of genes (first column).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-randrep, -randrep2</cite> - Internal options.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-clean</cite> - A switch indicating that only clean replicates should be used. Clean replicates are defined in <a class="reference internal" href="#grnaseq-perlmod"><em>GRNASeq.pm</em></a> module.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-multicor</cite> - Multiple test correction to apply to tests/tools that return uncorrected raw p-values. The default value is <em>BH</em>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-countsdir</cite> - Path to the directory containing gene read count data. There should be two files, one for each conditions, with names C&lt;cond&gt;_raw.tsv, created by <a class="reference internal" href="general.html#combine-replicates-perldoc"><em>combine_replicates.pl</em></a>. If not specified, the value from <em>defs.dat</em> will be used.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-outlierdir</cite> - A directory to store outlier data. If not specified, the value from <em>defs.dat</em> will be used.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-pileupdir</cite> - A directory to store pileup data. If not specified, the value from <em>defs.dat</em> will be used.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-gff</cite> - A GTF file to be used by many scripts. If not specified, the value from <em>defs.dat</em> will be used.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><cite>-clean</cite> - A switch indicating that only clean replicates should be used. Clean replicates are defined in C&lt;GRNASeq.pm&gt; module.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><p class="first last"><cite>-spclean</cite> - A switch indicating that only spikein-clean replicates should be used. Spkein-clean replicates are defined in <a class="reference internal" href="#grnaseq-perlmod"><em>GRNASeq.pm</em></a> module.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="grnaseq-pm">
+<span id="grnaseq-perlmod"></span><h1>GRNASeq.pm<a class="headerlink" href="#grnaseq-pm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="readexpressionfile">
+<span id="readexpressionfile-perldoc"></span><h2>ReadExpressionFile<a class="headerlink" href="#readexpressionfile" title="Permalink to this headline">¶</a></h2>
+<p>Read data from expression file <em>$file</em>. Expression file should be
+tab-delimited with the first column containing gene/transcript name, and
+the remaining columns containing replicates. This script returns a
+two-dimensional piddle <em>$d</em> (genes in rows and replicates in columns) and
+one-dimensional piddles <em>$m</em> and <em>$s</em>, containing mean and standard deviation,
+respectively. The last value is a selection piddle:</p>
+<div class="highlight-python"><pre>my ($d, $m, $s, $sel) = ReadExpressionFile($file, %options);</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>nonzero</cite> - selects only rows (genes) with at least n non-zero replicates.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>exclude [i1, i2, ...,in]</cite> - excludes a list of replicates from data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>ranrep</cite> - selects n replicates at random</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="readgenelist">
+<span id="readgenelist-perldoc"></span><h2>ReadGenelist<a class="headerlink" href="#readgenelist" title="Permalink to this headline">¶</a></h2>
+<p>Reads a list of genes (first column) from expression file:</p>
+<div class="highlight-python"><pre>my @g = ReadGeneList($file);</pre>
+</div>
+</div>
+<div class="section" id="readtwodetestfiles">
+<span id="readtwodetestfiles-perldoc"></span><h2>ReadTwoDETestFiles<a class="headerlink" href="#readtwodetestfiles" title="Permalink to this headline">¶</a></h2>
+<p>Reads two files with results of DE analysis. Each of these files should
+contain gene names in the first column, log2 fold changes in the second
+column and p-values in the third column.</p>
+<p>Returned are: array of genes $genes, and two piddles with corresponding
+p-values, <em>$p1</em> and <em>$p2</em> and fold changes <em>$fc1</em>, <em>$fc2</em>:</p>
+<div class="highlight-python"><pre>my ($genes, $p1, $p2, $fc1, $fc2) = ReadTwoDETestFiles($file1, $file2);</pre>
+</div>
+</div>
+<div class="section" id="readdetestfile">
+<span id="readdetestfile-perldoc"></span><h2>ReadDETestFile<a class="headerlink" href="#readdetestfile" title="Permalink to this headline">¶</a></h2>
+<p>Reads a file with results of DE analysis. It should contain gene names in the
+first column, log2 fold changes in the second column and p-values in the third
+column. Returned is a hash: <em>gene =&gt; [fc, p]</em>:</p>
+<div class="highlight-python"><pre>my %g = ReadDETestFile($file);</pre>
+</div>
+</div>
+<div class="section" id="readspikeanddetestfiles">
+<span id="readspikeanddetestfiles-perldoc"></span><h2>ReadSpikeAndDETestFiles<a class="headerlink" href="#readspikeanddetestfiles" title="Permalink to this headline">¶</a></h2>
+<p>Reads a DE file (fcp format) and a spike-in file (a list of good spikes with
+columns: spikein <em>&#64;col1</em> and expected fold change <em>&#64;col5</em>) and combines them
+together. Returns a list of gene (spike-in) names, spike-in significance
+(0 for not changing, 1 for changing) and p-values from the DE file:</p>
+<div class="highlight-python"><pre>my ($genes, $sp, $p) = ReadSpikeAndDETestFiles($DEfile, $spikefile)</pre>
+</div>
+</div>
+<div class="section" id="normalizedata">
+<span id="normalizedata-perldoc"></span><h2>NormalizeData<a class="headerlink" href="#normalizedata" title="Permalink to this headline">¶</a></h2>
+<p>Normalizes data read using ReadExpressionFile: two-dimensional piddle with
+genes in rows and replicates in columns. Methods are &#8216;none&#8217;, &#8216;deseq&#8217;,
+&#8216;totalcount&#8217;, &#8216;tmm&#8217;, &#8216;fpkm&#8217;:</p>
+<div class="highlight-python"><pre>my $nd = NormalizeData($d, $method);</pre>
+</div>
+</div>
+<div class="section" id="getnormalizeddata">
+<span id="getnormalizeddata-perldoc"></span><h2>GetNormalizedData<a class="headerlink" href="#getnormalizeddata" title="Permalink to this headline">¶</a></h2>
+<p>Read data from expression file, select genes/replicates and normalize.</p>
+<p>Returns the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li>$d - two-dimensional data piddle (rows = genes, columns = replicates)</li>
+<li>$m, $s - mean and standard deviation of genes</li>
+<li>$nrep - number of replicates (columns)</li>
+<li>$ngen - number of genes</li>
+<li>$genes - full list (array reference) of genes, before selection</li>
+<li>$name - string to display in figures</li>
+<li>$sel - selection of genes, can be used with $genes array</li>
+<li>$f - normalizing factors</li>
+</ul>
+</div></blockquote>
+<div class="highlight-python"><pre>my ($d, $m, $s, $nrep, $ngen, $genes, $name, $sel, $f) = GetNormalizedData(%options);</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>experiment</cite> - not used yet</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>condition</cite> - condition name (WT, Snf2...)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>type</cite> - type of data (raw, fake)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>nonzero</cite> - required number of non-zero replicates (-1 = all)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>norm</cite> - normalization (deseq, tmm, totalcount, none)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>exclude</cite> - exclude a list of replicates from data (comma separated)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>clip</cite> - clip n top and n bottom replicates</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="plotdistwithfits">
+<span id="plotdistwithfits-perldoc"></span><h2>PlotDistWithFits<a class="headerlink" href="#plotdistwithfits" title="Permalink to this headline">¶</a></h2>
+<p>Fit data with theoretical distributions and plot histogram/KDE of data and
+best-fitting distributions:</p>
+<div class="highlight-python"><pre>PlotDistWithFits($win, $pan, $d, $lab, %opt);
+
+* $win - window object (see PLGraphs)
+* $pan - panel number (1, 2, 3, ...)
+* $d - data (one-dimensional piddle)
+* $lab - label in the figure</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>charsize</cite> - character size</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>hist</cite> - plot histogram</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>kde</cite> - plot KDE</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>onebin</cite> - histogram in bins of 1</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><cite>bestbin</cite> - select best binning automatically</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param:</th><td class="field-body"><cite>max</cite> - maximum in y axis</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="readtestfileinfo">
+<span id="readtestfileinfo-perldoc"></span><h2>ReadTestfileInfo<a class="headerlink" href="#readtestfileinfo" title="Permalink to this headline">¶</a></h2>
+<p>Reads DE tool information from a metafile <em>$file</em>:</p>
+<div class="highlight-python"><pre>my %info = ReadTestfileInfo($file)</pre>
+</div>
+</div>
+</div>
+<div class="section" id="module-housekeeping">
+<span id="housekeeping-py"></span><span id="housekeeping-autodoc"></span><h1>housekeeping.py<a class="headerlink" href="#module-housekeeping" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="modules-housekeeping">
+<h2>Modules.housekeeping<a class="headerlink" href="#modules-housekeeping" title="Permalink to this headline">¶</a></h2>
+<p>This is the housekeeping module for the two python scripts that are in The
+Great RNA-seq Experiment codebase. These functions include logging, parsing,
+custom warning messages and custom formatting for time and date strings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">module_version:</th><td class="field-body">1.1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">created_on:</th><td class="field-body">2015-09-04</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="custom-warnings-and-pretty-times-dates">
+<h2>Custom Warnings and pretty times &amp; dates<a class="headerlink" href="#custom-warnings-and-pretty-times-dates" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="housekeeping.custom_formatwarning">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">custom_formatwarning</tt><big>(</big><em>message</em>, <em>category</em>, <em>filename</em>, <em>lineno</em>, <em>line</em><big>)</big><a class="reference internal" href="_modules/housekeeping.html#custom_formatwarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.custom_formatwarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a custom warning message format that stands out a bit more!</p>
+<p>Takes in the standard elements of a warning message from the warnings
+module (i.e.,  message, a category, a filename the line number and the
+line) and returns a formatted string encapsulating this information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>message</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the message to print</li>
+<li><strong>category</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the category of the warning</li>
+<li><strong>filename</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the filename of the script</li>
+<li><strong>lineno</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; the line number generating the warning</li>
+<li><strong>line</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the line that generated the warning</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="housekeeping.timeAndDateStr">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">timeAndDateStr</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/housekeeping.html#timeAndDateStr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.timeAndDateStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pretty current time and date timestring.</p>
+<p>Looks like 12:34 2015/01/01</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="housekeeping.timeStr">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">timeStr</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/housekeeping.html#timeStr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.timeStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pretty current time timestring</p>
+<p>Looks like 12:34</p>
+</dd></dl>
+
+</div>
+<div class="section" id="option-parsing">
+<h2>Option Parsing<a class="headerlink" href="#option-parsing" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="housekeeping.parse_required_options">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">parse_required_options</tt><big>(</big><em>options</em>, <em>optslist</em><big>)</big><a class="reference internal" href="_modules/housekeeping.html#parse_required_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.parse_required_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all required options have been specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>options</strong> &#8211; an <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+<li><strong>optslist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of options.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>options</strong> list should be a list of dictionaries with the
+&#8216;group&#8217; key. If &#8216;group&#8217;==&#8217;required&#8217; then its a required option. If the
+value of this option in the :py:modeule:optparse instance is not specified,
+then exit the script and provide help.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="housekeeping.parse_allowed_values">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">parse_allowed_values</tt><big>(</big><em>options</em>, <em>optslist</em><big>)</big><a class="reference internal" href="_modules/housekeeping.html#parse_allowed_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.parse_allowed_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all options conform to their allowed values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>options</strong> &#8211; an <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance</li>
+<li><strong>optslist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of options.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>options</strong> list should be a list of dictionaries with an
+optional &#8216;allowed_vals&#8217; key. &#8216;allowed_vals&#8217; should contain a list of the
+allowed values. If the value of this option in the :py:module:optparse
+instance is not in this list then warn the user and use the default value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="housekeeping.parse_option_type">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">parse_option_type</tt><big>(</big><em>options</em>, <em>optslist</em><big>)</big><a class="reference internal" href="_modules/housekeeping.html#parse_option_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.parse_option_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all options conform to their specified types</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>options</strong> &#8211; an <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance</li>
+<li><strong>optslist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of options.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>options</strong> list should be a list of dictionaries with an
+optional &#8216;opt_type&#8217; key. &#8216;opt_type&#8217; should be a string specifying the type
+of the option; examples are input_path, output_path, output_file, string,
+int, float. all the &#8216;opt_type&#8217; values should be valid python types except
+the paths. If the value of this option in the :py:module:optparse instance
+is not of this type then either warn the user and use the default value
+(if there is one) or exit the script and provide help.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="housekeeping.write_log_header">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">write_log_header</tt><big>(</big><em>options</em>, <em>optslist</em>, <em>version_string=''</em>, <em>imported_modules=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/housekeeping.html#write_log_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.write_log_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the standard header of a new log file</p>
+<p>Writes a standard set of details information to the header of a logfile.
+The information includes the script name, the command line, the values of
+all command parameters the script was run with (and whether they are the
+parameter default values). If set to &#8216;verbose&#8217; mode, it also outputs
+information about:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">python version.</p>
+</li>
+<li><p class="first">imported modules (where possible).</p>
+</li>
+<li><p class="first">perl version (where found).</p>
+</li>
+<li><p class="first">R version (where found).</p>
+</li>
+<li><p class="first">Rscript version (where found).</p>
+</li>
+<li><dl class="first docutils">
+<dt>environmental variables:</dt>
+<dd><ul class="first last simple">
+<li>PYTHONPATH</li>
+<li>PERLLIB</li>
+<li>PERL5LIB</li>
+<li>DRMAA_LIBRARY_PATH</li>
+<li>R_HOME</li>
+<li>LD_LIBRARY_PATH</li>
+<li>PATH</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first"><a class="reference internal" href="bootstrapping.html#group-by-gene-perldoc"><em>group_by_gene.pl</em></a> version (where found).</p>
+</li>
+<li><p class="first"><a class="reference internal" href="bootstrapping.html#group-by-gene-perldoc"><em>add_gene_name_column.pl</em></a> version
+(where found).</p>
+</li>
+<li><p class="first"><a class="reference external" href="http://samtools.sourceforge.net/">samtools</a> version (where found).</p>
+</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>options</strong> &#8211; an <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance</li>
+<li><strong>optslist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of options</li>
+<li><strong>version_string</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the version of the script for logging</li>
+<li><strong>imported_modules</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; a list of string of the names of the modules
+imported by the script being logged.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The options list should be a list of dictionaries each with the format:</p>
+<div class="highlight-python"><pre>{&quot;short&quot;: None,
+ &quot;long&quot;: &quot;--name&quot;,
+ &quot;dest&quot;: &quot;name&quot;,
+ &quot;action&quot;: &quot;store&quot;,
+ &quot;help&quot;: &quot;Some help&quot;,
+ &quot;group&quot;: optional/required,
+ &quot;default&quot;: &quot;a default&quot;,
+ allowed_vals: [&quot;some&quot;, &quot;values&quot;]
+})</pre>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="temporary-directories-and-files">
+<h2>Temporary directories and files<a class="headerlink" href="#temporary-directories-and-files" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="housekeeping.createNewTempdir">
+<tt class="descclassname">housekeeping.</tt><tt class="descname">createNewTempdir</tt><big>(</big><em>options</em>, <em>remove=True</em>, <em>create=True</em><big>)</big><a class="reference internal" href="_modules/housekeeping.html#createNewTempdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#housekeeping.createNewTempdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an existing tmpdir and create a new one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>options</strong> &#8211; a valid <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt> instance.</li>
+<li><strong>remove</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Remove any existing directory (Default: True)</li>
+<li><strong>create</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Create a new directory (Default True)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The path for the temporary directory is taken from the <em>tmpdir</em> keyword
+of the <strong>options</strong> instance, which must also include a <em>log</em> keyword
+containing the filename of the log file to write to..</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="powertests-pm">
+<span id="powertests-perlmod"></span><h1>Powertests.pm<a class="headerlink" href="#powertests-pm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="rerr">
+<span id="rerr-perldoc"></span><h2>rerr<a class="headerlink" href="#rerr" title="Permalink to this headline">¶</a></h2>
+<p>Calculates $x / ($x + $y) and its error:</p>
+<div class="highlight-python"><pre>my ($r, $sr) = rerr($x, $y, $sx, $sy);</pre>
+</div>
+</div>
+<div class="section" id="gettotdata">
+<span id="gettotdata-perldoc"></span><h2>GetTotData<a class="headerlink" href="#gettotdata" title="Permalink to this headline">¶</a></h2>
+<p>Reads data from powertest file:</p>
+<div class="highlight-python"><pre>my ($nrep, $tp, $tn, $fp, $fn, $stp, $stn, $sfp, $sfn) = GetTotData($file)</pre>
+</div>
+</div>
+<div class="section" id="getfcdata">
+<span id="getfcdata-perldoc"></span><h2>GetFCData<a class="headerlink" href="#getfcdata" title="Permalink to this headline">¶</a></h2>
+<p>Reads data from powertest FC file:</p>
+<div class="highlight-python"><pre>my ($nrep, $fclim, $tp, $tn, $fp, $fn, $stp, $stn, $sfp, $sfn) = GetTotData($file)</pre>
+</div>
+</div>
+<div class="section" id="getfconedata">
+<span id="getfconedata-perldoc"></span><h2>GetFCOneData<a class="headerlink" href="#getfconedata" title="Permalink to this headline">¶</a></h2>
+<p>Reads data from powertest FC file and combines positive and negative FC:</p>
+<div class="highlight-python"><pre>my ($nrep, $fclim, $tp, $tn, $fp, $fn, $stp, $stn, $sfp, $sfn) = GetTotData($file)</pre>
+</div>
+</div>
+<div class="section" id="collectfc">
+<span id="collectfc-perldoc"></span><h2>CollectFC<a class="headerlink" href="#collectfc" title="Permalink to this headline">¶</a></h2>
+<p>Collects unique fold changes from a piddle:</p>
+<div class="highlight-python"><pre>my @F = CollectFC($fclim);</pre>
+</div>
+</div>
+</div>
+<div class="section" id="tools-pm">
+<span id="tools-perlmod"></span><h1>Tools.pm<a class="headerlink" href="#tools-pm" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="treeview-pm">
+<span id="treeview-perlmod"></span><h1>TreeView.pm<a class="headerlink" href="#treeview-pm" title="Permalink to this headline">¶</a></h1>
+<p>A few subroutines supproting treeview and hierarchical clustering.</p>
+<div class="section" id="hierarchicalclusterprofiles">
+<h2>HierarchicalClusterProfiles<a class="headerlink" href="#hierarchicalclusterprofiles" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>HierarchicalClusterProfiles($profiles, $method, $dist);</pre>
+</div>
+</div>
+<div class="section" id="writecdtfile">
+<h2>WriteCDTFile<a class="headerlink" href="#writecdtfile" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>WriteCDTFile($file, $tree, $names, $descriptions, $profiles);</pre>
+</div>
+</div>
+<div class="section" id="writegtrfile">
+<h2>WriteGTRFile<a class="headerlink" href="#writegtrfile" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>WriteGTRFile($file, $tree);</pre>
+</div>
+</div>
+<div class="section" id="collecttree">
+<h2>CollectTree<a class="headerlink" href="#collecttree" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>@nodes = CollectTree($tree, $node);</pre>
+</div>
+</div>
+<div class="section" id="dice">
+<h2>Dice<a class="headerlink" href="#dice" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>@clustered = Dice($arrayref, \@nodes);</pre>
+</div>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Perl modules</a></li>
+<li><a class="reference internal" href="#bootstrapdb-pm">BootstrapDB.pm</a></li>
+<li><a class="reference internal" href="#cluster-pm">Cluster.pm</a></li>
+<li><a class="reference internal" href="#distribution-pm">Distribution.pm</a></li>
+<li><a class="reference internal" href="#getopt-pm">GetOpt.pm</a></li>
+<li><a class="reference internal" href="#grnaseq-pm">GRNASeq.pm</a><ul>
+<li><a class="reference internal" href="#readexpressionfile">ReadExpressionFile</a></li>
+<li><a class="reference internal" href="#readgenelist">ReadGenelist</a></li>
+<li><a class="reference internal" href="#readtwodetestfiles">ReadTwoDETestFiles</a></li>
+<li><a class="reference internal" href="#readdetestfile">ReadDETestFile</a></li>
+<li><a class="reference internal" href="#readspikeanddetestfiles">ReadSpikeAndDETestFiles</a></li>
+<li><a class="reference internal" href="#normalizedata">NormalizeData</a></li>
+<li><a class="reference internal" href="#getnormalizeddata">GetNormalizedData</a></li>
+<li><a class="reference internal" href="#plotdistwithfits">PlotDistWithFits</a></li>
+<li><a class="reference internal" href="#readtestfileinfo">ReadTestfileInfo</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-housekeeping">housekeeping.py</a><ul>
+<li><a class="reference internal" href="#modules-housekeeping">Modules.housekeeping</a></li>
+<li><a class="reference internal" href="#custom-warnings-and-pretty-times-dates">Custom Warnings and pretty times &amp; dates</a></li>
+<li><a class="reference internal" href="#option-parsing">Option Parsing</a></li>
+<li><a class="reference internal" href="#logging">Logging</a></li>
+<li><a class="reference internal" href="#temporary-directories-and-files">Temporary directories and files</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#powertests-pm">Powertests.pm</a><ul>
+<li><a class="reference internal" href="#rerr">rerr</a></li>
+<li><a class="reference internal" href="#gettotdata">GetTotData</a></li>
+<li><a class="reference internal" href="#getfcdata">GetFCData</a></li>
+<li><a class="reference internal" href="#getfconedata">GetFCOneData</a></li>
+<li><a class="reference internal" href="#collectfc">CollectFC</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tools-pm">Tools.pm</a></li>
+<li><a class="reference internal" href="#treeview-pm">TreeView.pm</a><ul>
+<li><a class="reference internal" href="#hierarchicalclusterprofiles">HierarchicalClusterProfiles</a></li>
+<li><a class="reference internal" href="#writecdtfile">WriteCDTFile</a></li>
+<li><a class="reference internal" href="#writegtrfile">WriteGTRFile</a></li>
+<li><a class="reference internal" href="#collecttree">CollectTree</a></li>
+<li><a class="reference internal" href="#dice">Dice</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/modules.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>

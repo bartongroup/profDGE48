@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Profiling Differential Gene Expression with a 48 replicate experiment &mdash; Profiling DGE with 48 replicates 3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Profiling DGE with 48 replicates 3.0 documentation" href="#" />
+    <link rel="next" title="Motivation for profiling DGE tools" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Motivation for profiling DGE tools"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="profiling-differential-gene-expression-with-a-48-replicate-experiment">
+<h1>Profiling Differential Gene Expression with a 48 replicate experiment<a class="headerlink" href="#profiling-differential-gene-expression-with-a-48-replicate-experiment" title="Permalink to this headline">¶</a></h1>
+<p>Welcome to the documentation for the collection of scripts developed by
+members of <a class="reference external" href="http://www.compbio.dundee.ac.uk/">The Barton Group</a> at <a class="reference external" href="http://www.dundee.ac.uk/">The
+University of Dundee</a> to process and analyse the
+data from a 48-replicate RNA-seq experiment conducted specifically to test the
+underlying assumptions and performance of popular RNA-seq Differential Gene
+Expression (DGE) tools. The results of the original analysis are presented in
+the following publications:</p>
+<blockquote>
+<div><ol class="arabic simple" id="paper1">
+<li><a class="reference external" href="http://bioinformatics.oxfordjournals.org/content/early/2015/07/22/bioinformatics.btv425.abstract">Statistical models for RNA-seq data derived from a two-condition 48-replicate experiment, Bioinformatics (2015) doi: 10.1093/bioinformatics/btv425</a></li>
+</ol>
+<ol class="arabic simple" id="paper2" start="2">
+<li><a class="reference external" href="http://arxiv.org/abs/1505.02017">Evaluation of tools for differential gene expression analysis by RNA-seq on a 48 biological replicate experiment, 2015, arXiv:1505.02017</a></li>
+</ol>
+</div></blockquote>
+<p>The aim of the study was to use real, rather than simulated, data to characterize the
+underlying character of RNA-seq data and to determine which, if any, tools were
+most appropriate for measuring differential gene expression (DGE) from
+RNA-seq data. A full description of the experiment is given in
+<a class="reference external" href="http://arxiv.org/abs/1505.02017">Schurch et. al. (2015)</a>.The scripts in this
+collection are written in a wide variety of languages (due
+to the collaborative nature of the project) including
+<a class="reference external" href="https://www.perl.org/">perl</a>,
+<a class="reference external" href="https://docs.python.org/2/">python</a> and
+<a class="reference external" href="https://www.r-project.org/">R</a>. For further assistance with these scripts or the documentation please contact one of
+the project authors:</p>
+<ul class="simple">
+<li><a class="reference external" href="mailto:nschurch&#37;&#52;&#48;dundee&#46;ac&#46;uk">Nick Schurch</a></li>
+<li><a class="reference external" href="mailto:mgierlinski&#37;&#52;&#48;dundee&#46;ac&#46;uk">Marek Gierlinski</a></li>
+<li><a class="reference external" href="mailto:pschofield&#37;&#52;&#48;dundee&#46;ac&#46;uk">Pieta Schofield</a></li>
+<li><a class="reference external" href="mailto:ccole&#37;&#52;&#48;dundee&#46;ac&#46;uk">Chris Cole</a></li>
+<li><a class="reference external" href="mailto:gjbarton&#37;&#52;&#48;dundee&#46;ac&#46;uk">Geoff Barton</a></li>
+</ul>
+<div class="section" id="documentation-contents">
+<h2>Documentation Contents<a class="headerlink" href="#documentation-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Motivation for profiling DGE tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package_inventory.html">Package Manifest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makedocs.html">How to make this Documentation</a></li>
+</ul>
+</div>
+<div class="section" id="indices-and-tables">
+<h3>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Profiling Differential Gene Expression with a 48 replicate experiment</a><ul>
+<li><a class="reference internal" href="#documentation-contents">Documentation Contents</a><ul>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="next chapter">Motivation for profiling DGE tools</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Motivation for profiling DGE tools"
+             >next</a> |</li>
+        <li><a href="#">Profiling DGE with 48 replicates 3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, N Schurch.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+  </body>
+</html>
