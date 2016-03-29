@@ -6,7 +6,7 @@ University of Dundee] (http://www.dundee.ac.uk) to process and analyse the
 data from a 48-replicate RNA-seq experiment conducted specifically to test the
 underlying assumptions and performance of popular RNA-seq Differential Gene 
 Expression (DGE) tools. A full description of the experiment is given in 
-[Schurch et. al. 2015] (http://arxiv.org/abs/1505.02017).
+[Schurch et. al. 2015] (http://rnajournal.cshlp.org/content/early/2016/03/28/rna.053959.115).
 
 ## Installation
 
