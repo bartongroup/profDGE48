@@ -28,6 +28,8 @@ use Pod::Usage;
 
 $| = 1;
 
+my $version = 1.1;
+
 my $created = "Created with $0 " . join(" ", @ARGV) . "\n";
 
 my $alpha = 0.05;
@@ -104,7 +106,7 @@ $fctrsel = $reffc($sel) if defined $reffcfile;
 #wcols $fctr($sel), $reffc($sel);die;
 
 
-my $rows = $db->selectall_arrayref("select featureid, bsid, log2foldchange, significance from DEresults") or die;
+my $rows = $db->selectall_arrayref("select featureid, bsid, log2foldchange, significance from DEresults where significance!='NA'") or die;
 my $dat = pdl(@$rows);
 my $featureid = $dat(0,;-);
 my $bsid = $dat(1,;-);
