@@ -21,7 +21,7 @@ the following publications:
 	
 	.. _paper2:
 
-	2. `Evaluation of tools for differential gene expression analysis by RNA-seq on a 48 biological replicate experiment, 2015, arXiv:1505.02017 <http://arxiv.org/abs/1505.02017>`_
+	2. `Evaluation of tools for differential gene expression analysis by RNA-seq on a 48 biological replicate experiment, RNA (2015) doi: 10.1261/rna.053959.115 <http://rnajournal.cshlp.org/content/early/2016/03/28/rna.053959.115>`_
 
 The aim of the study was to use real, rather than simulated, data to characterize the 
 underlying character of RNA-seq data and to determine which, if any, tools were
