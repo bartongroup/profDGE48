@@ -28,12 +28,13 @@ use GRNASeq;
 use GetOpt;
 use Powertests;
 
-use CompBio::PLgraphs;
-use CompBio::Tools;
-use CompBio::HTMLTable;
-use CompBio::Statistics;
-use CompBio::Distribution;
-use CompBio::Statistics;
+use PLgraphs;
+use Tools;
+use HTMLTable;
+use Stats;
+use Distribution;
+
+my $version=1.0;
 
 $| = 1;
 Stamp();
@@ -171,8 +172,11 @@ sub Overview
   PlotNsig($pan++);
   #PlotNrepRate2($pan++);
   PlotNrepRateFC($pan++, 'tpr', withfalse=>1);
-  PlotFCRateNrep($pan++, 'tpr', withfalse=>1);
+  #PlotFCRateNrep($pan++, 'tpr', withfalse=>1);
 
+  my $first = shift @nrep if $nrep[0] == 2;
+  PlotFCRateNrep($pan++, 'tpr', withfalse=>1);
+  @nrep = (2, @nrep) if $minnrep == 2;
 
   #PlotSigPropCumul($pan++, 16);
   PlotFour($pan++);

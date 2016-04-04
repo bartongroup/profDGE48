@@ -27,12 +27,11 @@ use GRNASeq;
 use GetOpt;
 use Powertests;
 
-use CompBio::PLgraphs;
-use CompBio::Tools;
-use CompBio::HTMLTable;
-use CompBio::Statistics;
-use CompBio::Distribution;
-use CompBio::Statistics;
+use PLgraphs;
+use Tools;
+use HTMLTable;
+use Stats;
+use Distribution;
 
 use Switch 'Perl6';
 
