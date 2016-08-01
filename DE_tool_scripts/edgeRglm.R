@@ -55,7 +55,7 @@ y <- DGEList(counts=geneCounts, group=groups$V2)
 normVals <- F
 if (normalise == 'package:default'){
   # do default normalisation for edgeR
-  y <- calcNormFactors(y, method="upperquartile")
+  y <- calcNormFactors(y)
   normVals <- T
 }
 ## estimate dispersion
