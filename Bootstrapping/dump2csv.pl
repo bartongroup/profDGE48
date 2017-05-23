@@ -16,16 +16,14 @@ use IO::Uncompress::Gunzip qw(gunzip $GunzipError);
 use DBI;
 
 my $path;
-my $out;
 my $VERBOSE = 1;
 my $DEBUG = 0;
 my $help;
 my $man;
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 GetOptions (
    'path=s'    => \$path,
-   'out=s'     => \$out,
    'verbose!'  => \$VERBOSE,
    'debug!'    => \$DEBUG,
    'man'       => \$man,
@@ -45,20 +43,28 @@ while (my $entry = readdir($dh)) {
 closedir($dh);
 
 printf "Found %d database files\n", scalar @files;
+die "ERROR - no database files found.\n" unless (scalar @files);
 
 for my $db (@files) {
+   # extract basename of database file and append ".csv" to make output file name
    my $out = basename($db, ".db");
    $out .= ".csv";
+   
+   # open output and add a header line
    open(my $OUT, ">", $out) or die "ERROR - unable to open '$out' for write: ${!}\nDied";
    print $OUT "BootstrapCount,Gene,WT1,WT2,log2FoldChange,FDR\n";
+   
+   # open SQLite db file and SELECT all the DE data with a JOIN to the feature
+   # table to give the gene names
    my $dbh = DBI->connect("dbi:SQLite:dbname=$path/$db", '', '') or die "ERROR - unable to connect: ", DBI::errstr();
    my $sth = $dbh->prepare("
-      SELECT bsid as BScount, f.featureID as gene, WT1, WT2, log2foldchange, significance  
+      SELECT bsid, f.featureID, WT1, WT2, log2foldchange, significance  
       FROM DEresults de 
-      JOIN features f on f.id = de.featureid 
-      limit 30"
-      ) or die "ERROR - prepare() statement failed: ", $dbh->errstr(); 
-   $sth->execute() or die "ERROR - execute() statement failed: ", $dbh->errstr;  
+      JOIN features f on f.id = de.featureid
+      ") or die "ERROR - prepare() statement failed: ", $dbh->errstr(); 
+   $sth->execute() or die "ERROR - execute() statement failed: ", $dbh->errstr;
+   
+   # write output to file
    while (my $row = $sth->fetchrow_arrayref()) {
       print $OUT join(",",@$row),"\n";
    }
@@ -69,22 +75,21 @@ for my $db (@files) {
 
 =head1 SYNOPSIS
 
-dump2csv.pl --path <path> [--out <file>] [--verbose|--no-verbose] [--version] [--debug|--no-debug] [--man] [--help]
+dump2csv.pl --path <path> [--verbose|--no-verbose] [--version] [--debug|--no-debug] [--man] [--help]
 
 =head1 DESCRIPTION
 
+Script to dump the SQLite bootstrap data to CSV file. Given a tool's directory path with a set bootstrap runs in SQLite formet (*.db filename) open each one and dump the raw bootstrap data.
+
+Output is one file per DB datafile with the same name, but with extension changed to ".csv".
 
 =head1 OPTIONS
 
 =over 5
 
-=item B<--in>
+=item B<--path>
 
-Input file.
-
-=item B<--out>
-
-Output filename. [default: STDOUT]
+Input path.
 
 =item B<--version>
 
