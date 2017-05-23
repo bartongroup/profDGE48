@@ -20,7 +20,7 @@ my $VERBOSE = 1;
 my $DEBUG = 0;
 my $help;
 my $man;
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 GetOptions (
    'path=s'    => \$path,
@@ -34,6 +34,7 @@ pod2usage(-verbose => 2) if ($man);
 pod2usage(-verbose => 1) if ($help);
 pod2usage(-msg => 'Please supply a valid filename.') unless ($path && -d $path);
 
+# read path and retain file name for *.db files
 opendir(my $dh, "$path") or die "ERROR - unable to open directory '$path': $!\nDied";
 my @files;
 while (my $entry = readdir($dh)) {
@@ -42,10 +43,12 @@ while (my $entry = readdir($dh)) {
 }
 closedir($dh);
 
-printf "Found %d database files\n", scalar @files;
+printf "Found %d database files\n", scalar @files if ($VERBOSE);
 die "ERROR - no database files found.\n" unless (scalar @files);
 
 for my $db (@files) {
+   print "Dumping data from $db...(may take a while)\n" if ($VERBOSE);
+   
    # extract basename of database file and append ".csv" to make output file name
    my $out = basename($db, ".db");
    $out .= ".csv";
@@ -72,6 +75,7 @@ for my $db (@files) {
    $sth->finish();
    $dbh->disconnect();
 }
+print "Done!" if ($VERBOSE);
 
 =head1 SYNOPSIS
 
