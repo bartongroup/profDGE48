@@ -1,12 +1,12 @@
 # Profiling Differential Gene Expression with a 48 replicate experiment
 
 This is the Github repository for the collection of scripts developed by 
-members of [The Barton Group] (http://www.compbio.dundee.ac.uk) at [The 
-University of Dundee] (http://www.dundee.ac.uk) to process and analyse the 
+members of [The Barton Group](http://www.compbio.dundee.ac.uk) at [The 
+University of Dundee](http://www.dundee.ac.uk) to process and analyse the 
 data from a 48-replicate RNA-seq experiment conducted specifically to test the
 underlying assumptions and performance of popular RNA-seq Differential Gene 
 Expression (DGE) tools. A full description of the experiment is given in 
-[Schurch et. al. 2015] (https://doi.org/10.1261/rna.053959.115).
+[Schurch et. al. 2015](https://doi.org/10.1261/rna.053959.115).
 
 ## Installation
 
@@ -57,7 +57,7 @@ which tool to use. A simple example command-line for generating a gold standard 
 The DGE from bootstrapped sub-selections of replicates is computed in a similar 
 fashion to the gold standards, however we now additionally specify a sqlite output format,
 a number of replicates to select and a number of bootstraps to perform. For the analysis 
-in [Schurch et. al. 2015] (http://arxiv.org/abs/1505.02017) use 100 bootstraps and replicate
+in [Schurch et. al. 2015](http://arxiv.org/abs/1505.02017) use 100 bootstraps and replicate
 sub-selection from 2..40. Again, an example for *edgeR* with 10 bootstraps os sub-selections 
 with 3 replicates in each condition might be something like:
 
